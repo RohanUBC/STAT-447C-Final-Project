@@ -24,7 +24,7 @@ library(readxl)
 - **Student(s):** Rohan Joseph (Student No.: 67089839)
 - **Professor:** Alexandre Bouchard-Côté 
 - **Course:** STAT 447C - Bayesian Statistics
-- **Project Proposal Submittion Date:** March 15th 2024
+- **Project Proposal Submission Date:** March 15th 2024
 
 
 
