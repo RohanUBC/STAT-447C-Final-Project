@@ -5,10 +5,9 @@ STAT 447C Final Project GitHub Repository - Rohan Joseph
 ### Key Details
 
 - **Project Idea:** Bayesian Time Series Analysis of US Unemployment Rates 
-- **Student(s):** Rohan Joseph (Student No.: 67089839)
+- **Student(s):** Rohan Joseph 
 - **Professor:** Alexandre Bouchard-Côté 
 - **Course:** STAT 447C - Bayesian Statistics
-- **Project Proposal Submission Date:** March 15th 2024
 
 
 
