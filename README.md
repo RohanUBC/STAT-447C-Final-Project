@@ -42,7 +42,7 @@ US unemployment rates (from 1948 to 2024) and their associated economic indicato
 URL: https://fred.stlouisfed.org/series/UNRATE
 
 **US Bureau of Labor Statistics (BLS):** Just like the dataset from the US Federal 
-Reserve, his dataset offer historical data on monthly US unemployment rates (from 1948
+Reserve, this dataset offer historical data on monthly US unemployment rates (from 1948
 to 2024) and their associated economic indicators.
 
 URL: https://data.bls.gov/pdq/SurveyOutputServlet
