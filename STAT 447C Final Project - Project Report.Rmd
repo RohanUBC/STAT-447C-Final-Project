@@ -1,6 +1,10 @@
 ---
-title: "STAT 447C Final Project - Project Report"
-author: "Rohan Joseph (67089839)"
+title: "Bayesian Time Series Analysis of US Unemployment Rates"
+author: |
+  | STAT 447C Final Project - Project Report
+  |
+  | Rohan Joseph (67089839)
+date: "Due Date: April 19th 2024"
 output: pdf_document
 ---
 
@@ -11,6 +15,72 @@ library(dplyr)
 library(ggplot2)
 
 ```
+
+
+
+# Problem Formulation
+
+- A real-world inference task/problem.
+- Succinct but sufficient context (e.g. biological terminology) needed to understand
+the problem.
+- The key modelling/methodological/challenge, clearly associating it with one of 
+the items under the "menu of project themes" above.
+- Project Theme: Methodological/theoretical aspect of the project: Is the approach 
+sound? Creative?
+
+[To be added]
+
+
+
+# Literature Review
+
+- The report contains a literature review, where relevant literature is cited and
+properly summarized.
+
+[To be added]
+
+
+
+# Data Analysis
+
+- A Bayesian model is precisely described (e.g., using the ... ~ ... notation).
+- Implementation code in the appendix (e.g., using Stan)
+- Prior choice is motivated. If appropriate, several choices are compared or sensitivity
+analysis is performed.
+- Critical evaluation of the posterior approximation. An appropriate combination of
+diagnostics, synthetic datasets and other validation strategies.
+
+[To be added]
+
+
+
+# Discussion
+
+- Does the report describe key limitations?
+
+[To be added]
+
+
+
+# Appendix
+
+[To be added]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

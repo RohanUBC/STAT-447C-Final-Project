@@ -101,8 +101,8 @@ The repository includes the following files:
 
 - Project Proposal
 - Project Report (scaffold)
-- The Federal Resereve Economic Data (FRED) Dataset
-- The US Burean of Labour Statistics (BLS) Dataset
+- The Federal Reserve Economic Data (FRED) Dataset
+- The US Bureau of Labor Statistics (BLS) Dataset
 - A README File 
 
 
