@@ -31,13 +31,13 @@ library(readxl)
 # Project Theme and Overview
 
 The aim of this project is to apply Bayesian forecasting techniques to model and 
-predict unemployment rates in the United States (US), utlizing a real-world dataset
+predict unemployment rates in the United States (US), utilizing a real-world dataset
 that has documented the monthly unemployment rate (from 01/1948 to 02/2024) in the 
 US. Through the lens of Bayesian time series analysis, this project aims to reveal
 seasonal patterns/fluctuations in the data, providing a detailed look at how the
 unemployment rate has evolved over time, with a goal of providing probabilistic forecasts
 of future trends. Furthermore, this project also aims to quantify the uncertainty
-surrounding these forcasts, which is an important consideration to make when considering
+surrounding these forecasts, which is an important consideration to make when considering
 the inherent variability over the years in the US labor market. 
 
 This approach will enable a detailed assessment of the historical behavior of unemployment
