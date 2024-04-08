@@ -18,24 +18,45 @@ library(ggplot2)
 
 
 
-# Problem Formulation
+# Abstract
 
-- A real-world inference task/problem.
-- Succinct but sufficient context (e.g. biological terminology) needed to understand
-the problem.
-- The key modelling/methodological/challenge, clearly associating it with one of 
-the items under the "menu of project themes" above.
-- Project Theme: Methodological/theoretical aspect of the project: Is the approach 
-sound? Creative?
+- Brief summary of objectives, methods, key results, focus on uncertainty quantification
+and calibration.
 
 [To be added]
 
 
+# Introduction
 
-# Literature Review
+- *Introduce the problem:* Forecasting US unemployment rates using Bayesian time series analysis.
+- Provide context and the importance of understanding and predicting unemployment rates.
+- The importance of forecasting and uncertainty quantification.
+- Introduction to Bayesian forecasting and Hidden Markov Models (HMM).
 
-- The report contains a literature review, where relevant literature is cited and
-properly summarized.
+[To be added]
+
+
+### Problem Formulation
+
+- *Real-world inference task/problem:* Forecasting future US unemployment rates based
+on historical data (1948-2024) using HMM.
+- *Context:* Briefly explain the significance of unemployment rates in economic planning
+and policy-making.
+- *Key modeling/methodological challenge:* Applying Bayesian time series analysis to
+reveal seasonal patterns, understand historical trends, and provide probabilistic
+forecasts of future unemployment rates. Also have a focus on calibration
+- Note the importance of accurate uncertainty measures in forecasting.
+
+[To be added]
+
+
+### Literature Review
+
+- Summarize key findings from existing literature on Bayesian forecasting and unemployment
+rate analysis.
+- Highlight gaps your project aims to fill or how it builds upon previous work.
+- Discussion of uncertainty quantification in economic forecasting.
+- Calibration of probabilistic forecasts in existing literature.
 
 [To be added]
 
@@ -43,12 +64,23 @@ properly summarized.
 
 # Data Analysis
 
-- A Bayesian model is precisely described (e.g., using the ... ~ ... notation).
+- *Model:* A Bayesian model is precisely described (e.g., using the ... ~ ... notation).
+  - Description of Bayesian HMM for modeling unemployment rates.
 - Implementation code in the appendix (e.g., using Stan)
-- Prior choice is motivated. If appropriate, several choices are compared or sensitivity
+  - R code for implementing the HMM using Bayesian methods.
+- *Motivation of prior choice:* If appropriate, several choices are compared or sensitivity
 analysis is performed.
-- Critical evaluation of the posterior approximation. An appropriate combination of
+- *Critical evaluation of the posterior approximation:* An appropriate combination of
 diagnostics, synthetic datasets and other validation strategies.
+  - Techniques used for uncertainty quantification and calibration of forecasts.
+  - Model diagnostics and validation strategies.
+- *Methodological/Theoretical aspect:*
+  - Assessment of the approach's robustness and creativity.
+  - Discussion on the choice of HMM and Bayesian calibration methods.
+- *Calibration of uncertainty:* 
+  - Explanation of calibration tests for predictive intervals.
+  - Presentation of calibration test results.
+  - Analysis of how well the model's uncertainty measures align with observed data.
 
 [To be added]
 
@@ -56,7 +88,32 @@ diagnostics, synthetic datasets and other validation strategies.
 
 # Discussion
 
-- Does the report describe key limitations?
+- *Project Theme:* Assess the soundness and creativity of the approach within the context
+of Bayesian forecasting and time series analysis. Discuss the model's ability to handle
+the intricacies of unemployment data and its forecasting accuracy.
+- *Summarizing results:* Summarize key findings and their implications for understanding and forecasting 
+US unemployment rates.
+  - Interpretation of the forecasting results.
+- Implications of calibrated uncertainty for economic decision-making.
+- Discuss the limitations of your study, such as data constraints, model assumptions,
+or potential biases.
+- Suggest areas for future research or methodological improvements.
+
+[To be added]
+
+
+
+# Conclusion
+
+- Recap of the project's contributions to Bayesian forecasting and calibration.
+- Reflect on the value of Bayesian methods in economic time series forecasting.
+- Final thoughts on policy implications and the value of calibrated forecasting.
+
+[To be added]
+
+
+
+# References
 
 [To be added]
 
