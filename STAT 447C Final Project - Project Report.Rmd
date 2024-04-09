@@ -145,6 +145,66 @@ diagnostics, synthetic datasets and other validation strategies.
 
 
 
+## BSTS Model for US Unemployment Rates
+
+**BSTS Model Specification**
+
+*Observation Model:*
+The observed unemployment rate at time $t$, $y_t$, is modeled as:
+$$ y_t = \mu_t + \tau_t + \epsilon_t $$
+
+where:
+
+- $\mu_t$ represents the trend component.
+- $\tau_t$ denotes the seasonal component.
+- $\epsilon_t$ is the observation error.
+
+The observation error $\epsilon_t$ follows a Normal distribution with mean 0 and 
+variance $\sigma^2_y$:
+$$ \epsilon_t \sim N(0, \sigma^2_y) $$
+
+*Local Level (Trend) Component:*
+The trend component $\mu_t$ evolves over time as:
+$$ \mu_{t+1} = \mu_t + \eta_{\mu,t} $$
+
+where $\eta_{\mu,t}$ represents the trend shock at time $t$.
+
+$\eta_{\mu,t}$ follows a Normal distribution:
+$$ \eta_{\mu,t} \sim N(0, \sigma^2_{\mu}) $$
+
+*Seasonal Component:*
+The seasonal component $\tau_t$ adjusts for seasonality, following a similar evolution:
+$$ \tau_{t+1} = - \sum_{s=1}^{S-1}\tau_{t-s} + \eta_{\tau,t} $$
+where:
+
+- $S$ is the seasonal period (in this case $S = 12$ for monthly.
+- $\eta_{\tau,t}$ represents the seasonal shock.
+
+$\eta_{\tau,t}$ follows a Normal distribution:
+$$ \eta_{\tau,t} \sim N(0, \sigma^2_{\tau}) $$
+\
+
+**Hyperparameters and Hyperpriors:**
+
+*Observation Noise Variance* $\sigma^2_y$:
+
+- Hyperprior: $\sigma^2_y \sim \text{Inverse-Gamma}(\alpha_y, \beta_y)$
+- Where, $\alpha_y = 2$ and $\beta_y = 0.5228194$, based on the ARIMA residuals.
+
+*Trend Variance* $\sigma^2_{\mu}$:
+
+- Hyperprior: $\sigma^2_{\mu} \sim \text{Inverse-Gamma}(\alpha_{\mu}, \beta_{\mu})$
+- Where, $\alpha_{\mu} = 2$ and $\beta_{\mu} = 7.724585$, derived from the decomposition 
+of the trend component.
+
+*Seasonal Variance* $\sigma^2_{\tau}$:
+
+- Hyperprior: $\sigma^2_{\tau} \sim \text{Inverse-Gamma}(\alpha_{\tau}, \beta_{\tau})$
+- Where, $\alpha_{\tau} = 2$ and $\beta_{\tau} = 0.007432969$, derived from the 
+decomposition of the seasonal component.
+
+
+
 
 
 # Discussion
@@ -193,7 +253,7 @@ or potential biases.
 
 
 
-## Appendix A - Explanatory Data Analysis
+## Appendix A - Preliminary Data Analysis
 
 
 **Reading in the Dataset**
@@ -319,9 +379,88 @@ help.sap.com/docs/
 SAP_HANA_PLATFORM/2cfbc5cf2bc14f028cfbe2a2bba60a50/b9972576368640da9831d73a9d749c3b.html. 
 Accessed 8 Apr. 2024. 
 
-Radtke, Tim. “Minimize Regret.” *Minimize Regret - Rediscovering Bayesian Structural Time Series*, minimizeregret.com/post/2020/06/07/rediscovering-bayesian-structural-time-series/. Accessed 9 Apr. 2024. 
+Radtke, Tim. “Minimize Regret.” *Minimize Regret - Rediscovering Bayesian Structural 
+Time Series*, 
+minimizeregret.com/post/2020/06/07/rediscovering-bayesian-structural-time-series/. 
+Accessed 9 Apr. 2024. 
 
-Yabe, Taka. “Pystan - Causal Inference Using Bayesian Structural Time Series.” *Takahiro Yabe*, 21 Feb. 2021, www.takayabe.net/post/pystan-bsts. Accessed 9 Apr. 2024.
+Yabe, Taka. “Pystan - Causal Inference Using Bayesian Structural Time Series.” 
+*Takahiro Yabe*, 21 Feb. 2021, www.takayabe.net/post/pystan-bsts. Accessed 9 Apr. 2024.
+
+
+\clearpage
+
+
+
+## Appendix D - Estimation of Hyperparameters for BSTS Model Using the Empirical Bayes Model
+
+Before we can specify the BSTS model for the US Unemployment rates, we need to estimate
+the hyperparameters that will inform the prior distributions. To do this, we will 
+use an Empirical Bayes approach to estimate these hyper parameters from the data
+itself. 
+
+The Empirical Bayes method is used in scenarios where we have little prior 
+information about the hyper parameters, and involves using the data to estimate values 
+that will then inform our prior beliefs. This is particularly useful in predictive
+modeling, as it allows us to use data-driven estimates while still maintaining a 
+Bayesian framework.
+\
+
+**Defining the Hyperpriors for the Noise Variance**
+
+We fit an Auto-Regressive Integrated Moving Average (ARIMA) model to the unemployment
+rate time series to capture its temporal patterns. The ARIMA model's residuals provide
+an empirical basis for estimating the noise variance in the BSTS model.
+
+```{r}
+
+arima_fit <- auto.arima(ts_unrate)
+summary(arima_fit)
+
+```
+
+```{r}
+
+resid_var <- var(arima_fit$residuals)
+
+# We use a relatively small 2 to remain less informative
+alpha_y <- 2 
+beta_y <- (alpha_y + 1) * resid_var
+
+sigma_sqr_y_prior <- list(shape = alpha_y, scale = beta_y)
+sigma_sqr_y_prior
+
+```
+
+
+**Defining the Hyperpriors for the Trend and Seasonal Components**
+
+We decompose the time series of the US unemployment rates data into its constituent
+element and evaluate the variances of these components.
+
+```{r}
+
+decomp <- stl(ts_unrate, s.window = "periodic")
+
+trend_var <- var(decomp$time.series[, "trend"])
+seasonal_var <- var(decomp$time.series[, "seasonal"])
+
+# We use a relatively small 2 to remain less informative
+alpha_mu <- 2   # For the trend component
+alpha_tau <- 2  # For the seasonal component
+
+beta_mu <- (alpha_mu + 1) * trend_var
+beta_tau <- (alpha_tau + 1) * seasonal_var
+
+sigma_sqr_mu_prior <- list(shape = alpha_mu, scale = beta_mu)
+sigma_sqr_mu_prior
+
+sigma_sqr_tau_prior <- list(shape = alpha_tau, scale = beta_tau)
+sigma_sqr_tau_prior
+
+```
+
+
 
 \clearpage
 
