@@ -18,6 +18,15 @@ library(ggplot2)
 
 
 
+# Key Details
+
+- **Student(s):** Rohan Joseph (Student No.: 67089839)
+- **Professor:** Alexandre Bouchard-Côté 
+- **Course:** STAT 447C - Bayesian Statistics
+- **GitHub Repository Link:** https://github.com/RohanUBC/STAT-447C-Final-Project
+
+
+
 # Abstract
 
 - Brief summary of objectives, methods, key results, focus on uncertainty quantification
@@ -26,31 +35,64 @@ and calibration.
 [To be added]
 
 
+
 # Introduction
 
-- *Introduce the problem:* Forecasting US unemployment rates using Bayesian time series analysis.
-- Provide context and the importance of understanding and predicting unemployment rates.
+- *Introduce the problem:* Forecasting US unemployment rates using Bayesian time series 
+analysis.
+- Provide context and the importance of understanding and predicting unemployment 
+rates.
 - The importance of forecasting and uncertainty quantification.
-- Introduction to Bayesian forecasting and Hidden Markov Models (HMM).
+- *Context:* Briefly explain the significance of unemployment rates in economic 
+planning and policy-making.
 
 [To be added]
 
 
-### Problem Formulation
+## Problem Formulation
 
-- *Real-world inference task/problem:* Forecasting future US unemployment rates based
-on historical data (1948-2024) using HMM.
-- *Context:* Briefly explain the significance of unemployment rates in economic planning
-and policy-making.
-- *Key modeling/methodological challenge:* Applying Bayesian time series analysis to
-reveal seasonal patterns, understand historical trends, and provide probabilistic
-forecasts of future unemployment rates. Also have a focus on calibration
-- Note the importance of accurate uncertainty measures in forecasting.
+The central focus of this project is to model and forecast unemployment rates in 
+the United States (US), utilizing a real-world dataset that has documented the monthly
+unemployment rate (from 01/1948 to 02/2024) in the US. A key element of the project 
+is to accurately forecast these rates into the future while also quantifying the 
+inherent uncertainty of such forecasts. The dataset that is being used is from the 
+US Federal Reserve on monthly US unemployment rates.
 
-[To be added]
+*Federal Reserve Economic Data (FRED):* This dataset offer historical data on monthly 
+US unemployment rates (from 1948 to 2024) and their associated economic indicators.
+
+URL: https://fred.stlouisfed.org/series/UNRATE
+
+We will adopt a Bayesian time series analysis approach, utilizing a Hidden Markov 
+Model (HMM) to model the dynamics of the US labor market based on the given data.
+This involves uncovering and modeling the historical trends and seasonal patterns
+within the data, providing and probabilistic forecast of future unemployment rates.
+We are using an HMM for their ability to model time series data where the system 
+being modeled is assumed to be a Markov process with unobserved (hidden) states. 
+HMMs are capable of capturing the latent structures and transitions in the data, 
+making them a powerful tool for identifying patterns and predicting future states
+based on historical trends.
+
+**Key Modelling/Methodological Challenge**
+
+This project navigates some challenges in applying Bayesian time series analysis
+with Hidden Markov Models (HMM) to economic data, particular with modelling the
+seasonal patterns and long-term trends inherent in unemployment rates. The primary
+hurdles lies in selecting and fine-tuning parameters and models that can accurately
+reflect the US labor market's dynamics. 
+
+In addition, we aim to also include a calibration of the uncertainty of the forecast,
+demanding a sophisticated approach in how the model is constructed and validated. 
+This is done to ensure that the forecasts are not only precise, but also accompanied 
+by reliable uncertainty measures. Such measures are pivotal for economic planning 
+and policy-making, providing a foundation for risk-aware decision-making. By accurately
+quantifying forecast uncertainty, this approach aims to assess potential risks effectively, 
+thereby facilitating more informed and prudent economic decision making.
 
 
-### Literature Review
+
+
+## Literature Review
 
 - Summarize key findings from existing literature on Bayesian forecasting and unemployment
 rate analysis.
@@ -91,8 +133,8 @@ diagnostics, synthetic datasets and other validation strategies.
 - *Project Theme:* Assess the soundness and creativity of the approach within the context
 of Bayesian forecasting and time series analysis. Discuss the model's ability to handle
 the intricacies of unemployment data and its forecasting accuracy.
-- *Summarizing results:* Summarize key findings and their implications for understanding and forecasting 
-US unemployment rates.
+- *Summarizing results:* Summarize key findings and their implications for understanding 
+and forecasting US unemployment rates.
   - Interpretation of the forecasting results.
 - Implications of calibrated uncertainty for economic decision-making.
 - Discuss the limitations of your study, such as data constraints, model assumptions,
