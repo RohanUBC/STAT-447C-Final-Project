@@ -79,8 +79,9 @@ patterns within the data, providing probabilistic forecasts of future unemployme
 We opt for BSTS due to its flexibility in modeling complex time series data with trend
 and seasonality components. BSTS allows for the estimation of latent states, such 
 as trend and seasonal effects, and provides a framework for forecasting future states
-while quantifying uncertainty.
-
+while quantifying uncertainty. Please see Appendix C on a general overview on the
+BSTS model.
+\
 
 **Key Modelling/Methodological Challenge**
 
@@ -254,7 +255,7 @@ lines(avg_yearly_unrate$YEAR, avg_yearly_unrate$Average_Unemployment_Rate, col =
 
 **Decomposition of the Time Series**
 
-```{r, fig.align = "center", fig.width = 7, fig.height = 6.5}
+```{r, fig.align = "center", fig.width = 7, fig.height = 6}
 
 ts_unrate <- ts(dat$UNRATE, start = c(1948, 1), frequency = 12)
 decompose_of_ts = stl(ts_unrate, s.window = "periodic")
@@ -269,19 +270,58 @@ periods where the unemployment rate exhibits some trends, which seem to be non-l
 and varying with time.
 
 *Seasonality:* The seasonal plot in the decomposition suggests that there is seasonal 
-variation in the US unemployment rates, but there isn't a consistent interval in the
-variation in the seasonality.
+variation in the US unemployment rates, and there is a consistent interval in the
+variation of the seasonality. The consistent interval in the seasonality suggests 
+a stable seasonal effect that repeats annually.
+
+*Remainder/Residual:* The remainder/residual plot of the decomposition appears to
+be relatively small compared to the seasonal and trend components, suggesting that 
+the model has captured most of the systematic structure in the data.
 
 
-**Considering the Trend Component**
-
-[To be added]
+\clearpage
 
 
-**Considering the Seasonality Component**
 
-[To be added]
+## Appendix C - General Overview on the Bayesian Structural Time Series (BSTS) Model
 
+The Bayesian Structural Time Series (BSTS) model is a statistical method that serves
+several applications such as feature selection, time series forecasting, and causal 
+inference analysis. It operates on time series data to ascertain underlying patterns
+and forecast future data points.
+
+BSTS models are composed of three primary elements:
+
+1. *Kalman Filter:* A method for decomposing time series into components like trend
+and seasonality, allowing state variables to be modeled dynamically over time.
+2. *Spike-and-Slab Prior:* A technique for feature selection that identifies which 
+predictors in a regression are most informative.
+3. *Bayesian Model Averaging (BMA):* A process where multiple models are averaged 
+together to produce predictions or infer parameters, accounting for model uncertainty. 
+In the BSTS framework, BMA is utilized extensively to generate samples from repeated 
+Markov Chain Monte Carlo (MCMC) simulations into final model outputs, providing a 
+comprehensive prediction that encompasses model variability.
+
+A general BSTS model consists of two set of equations,
+
+1. *Observational equation:* Response variable as a function of predictors and/or latent variables.
+2. *State equations:* How the parameters evolve over the time.
+
+BSTS models are usually implemented using the `bsts` package in R, but can also be
+implemented using `rstan`. Stan's advanced MCMC algorithms enhance the flexibility 
+and scalability of BSTS models, making it a powerful tool for time series analysis.
+\
+
+**References**
+
+“Bayesian Structural Time Series.” *SAP HANA Predictive Analysis Library (PAL)*, 
+help.sap.com/docs/
+SAP_HANA_PLATFORM/2cfbc5cf2bc14f028cfbe2a2bba60a50/b9972576368640da9831d73a9d749c3b.html. 
+Accessed 8 Apr. 2024. 
+
+Radtke, Tim. “Minimize Regret.” *Minimize Regret - Rediscovering Bayesian Structural Time Series*, minimizeregret.com/post/2020/06/07/rediscovering-bayesian-structural-time-series/. Accessed 9 Apr. 2024. 
+
+Yabe, Taka. “Pystan - Causal Inference Using Bayesian Structural Time Series.” *Takahiro Yabe*, 21 Feb. 2021, www.takayabe.net/post/pystan-bsts. Accessed 9 Apr. 2024.
 
 \clearpage
 
