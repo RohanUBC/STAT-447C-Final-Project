@@ -217,7 +217,7 @@ $X_t = \phi \cdot X_{t-1} + \epsilon_t$.
 
 *Observation Model:*
 The observed unemployment rate at time $t$, $y_t$, is modeled as:
-$$y_t \sim \text{Normal}(m_t + s_t + X_t + Z_t, \sigma^2_y), \ \ \ \ \ \ \ \ \ \text{where} y_1 \sim \text{Normal}(m_1 + s_1, \sigma^2_y)$$
+$$y_t \sim \text{Normal}(m_t + s_t + X_t + Z_t, \sigma^2_y), \ \ \ \ \ \ \ \ \ \text{where} \ y_1 \sim \text{Normal}(m_1 + s_1, \sigma^2_y)$$
 
 where $m_t$ represents the trend component, $s_t$ denotes the seasonal component, 
 $X_t$ denotes the autoregressive process, $Z_t$ is the white noise, and $\sigma^2_y$
@@ -236,7 +236,7 @@ $$s_t \sim \text{Normal}\left(-\sum_{i=1}^{S-1} s_{t-i}, \sigma^2_{s}\right), \ 
 
 where $S$ is the seasonal period (in this case $S = 12$) for monthly, $s_{t-i}$ is
 the seasonal component as the previous time point, $\sigma^2_s$ is the variance of
-the seasonal component, and $_s_1, s_2, ..., s_{12}$ are the initial seasonal
+the seasonal component, and $s_1, s_2, ..., s_{12}$ are the initial seasonal
 component values (associated with every month of a year).
 
 *Autoregressive Process:*
@@ -758,7 +758,7 @@ model {
 # prediction <- predict(model, horizon = length(ts_unrate_test), burn = SuggestBurn(0.1, model))
 # 
 # # Plotting the forecast with credible intervals
-# plot(prediction, plot.original = 12) # 'plot.original = 12' plots the last 12 months of the training data along with the forecast
+# plot(prediction, plot.original = 12)
 # 
 # # Calculating MAE and RMSE
 # predicted_means <- as.numeric(prediction$mean)
