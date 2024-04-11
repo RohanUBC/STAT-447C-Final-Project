@@ -739,6 +739,18 @@ model {
 
 ```{r}
 
+# # Calculate the indices for the year 2020
+# start_2020 <- (2020 - start_test[1]) * 12 + 1
+# end_2020 <- start_2020 + 11
+# 
+# # Exclude the year 2020 from the test set
+# dat_test_excl_2020 <- dat_test[-(start_2020:end_2020), ]
+# 
+# # Then create the time series excluding the year 2020
+# ts_unrate_test_excl_2020 <- ts(dat_test_excl_2020$UNRATE, 
+#                                 start = start_test, 
+#                                 frequency = 12)
+# 
 # # Model specification
 # state_space <- list()
 # 
@@ -755,14 +767,16 @@ model {
 # model <- bsts(ts_unrate_train, state.specification = state_space, niter = 10000)
 # 
 # # Predicting future values
-# prediction <- predict(model, horizon = length(ts_unrate_test), burn = SuggestBurn(0.1, model))
+# # prediction <- predict(model, horizon = length(ts_unrate_test), burn = SuggestBurn(0.1, model))
+# prediction <- predict(model, horizon = length(ts_unrate_test_excl_2020), burn = SuggestBurn(0.1, model))
 # 
 # # Plotting the forecast with credible intervals
 # plot(prediction, plot.original = 12)
 # 
 # # Calculating MAE and RMSE
 # predicted_means <- as.numeric(prediction$mean)
-# actuals <- as.numeric(ts_unrate_test)
+# # actuals <- as.numeric(ts_unrate_test)
+# actuals <- as.numeric(ts_unrate_test_excl_2020)
 # 
 # # MAE
 # mae <- mean(abs(predicted_means - actuals))
