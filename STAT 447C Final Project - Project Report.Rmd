@@ -8,7 +8,8 @@ output:
     latex_engine: xelatex
 header-includes:
   - \usepackage{geometry}
-  - \geometry{left=1.5cm, top=1.5cm, right=1.5cm, bottom=1.5cm}
+  # - \geometry{left=1.5cm, top=1.5cm, right=1.5cm, bottom=1.5cm}
+  - \geometry{left=1cm, top=1.5cm, right=1cm, bottom=1.5cm}
 ---
 
 ```{r setup, include = FALSE}
@@ -20,6 +21,7 @@ library(readr)
 library(tseries)
 library(forecast)
 library(rstan)
+library(bsts)
 
 ```
 
@@ -215,7 +217,7 @@ $X_t = \phi \cdot X_{t-1} + \epsilon_t$.
 
 *Observation Model:*
 The observed unemployment rate at time $t$, $y_t$, is modeled as:
-$$y_t \sim \text{Normal}(m_t + s_t + X_t + Z_t, \sigma^2_y)$$
+$$y_t \sim \text{Normal}(m_t + s_t + X_t + Z_t, \sigma^2_y), \ \ \ \ \ \ \ \ \ \text{where} y_1 \sim \text{Normal}(m_1 + s_1, \sigma^2_y)$$
 
 where $m_t$ represents the trend component, $s_t$ denotes the seasonal component, 
 $X_t$ denotes the autoregressive process, $Z_t$ is the white noise, and $\sigma^2_y$
@@ -223,18 +225,19 @@ is the observation variance.
 
 *Local Level (Trend) Component:*
 The trend component $m_t$ evolves over time as:
-$$m_t \sim \text{Normal}(m_{t-1}, \sigma^2_m)$$
+$$m_t \sim \text{Normal}(m_{t-1}, \sigma^2_m), \ \ \ \ \ \ \ \ \ \text{where} \ m_1 \sim \text{Normal}(0, \sigma^2_m)$$
 
-where $m_{t-1}$ is the trend component at the previous time point, and $\sigma^2_m$
-is the variance of the trend component.
+where $m_{t-1}$ is the trend component at the previous time point, $\sigma^2_m$ is
+the variance of the trend component, and $m_1$ is the initial trend component.
 
 *Seasonal Component:*
 The seasonal component $s_t$ evolves over time as:
-$$s_t \sim \text{Normal}\left(-\sum_{i=1}^{S-1} s_{t-i}, \sigma^2_{s}\right)$$
+$$s_t \sim \text{Normal}\left(-\sum_{i=1}^{S-1} s_{t-i}, \sigma^2_{s}\right), \ \ \ \ \ \ \ \ \ \ \text{where} \ s_1, s_2, ..., s_{12} \sim \text{Normal}(0, \sigma^2_s)$$
 
 where $S$ is the seasonal period (in this case $S = 12$) for monthly, $s_{t-i}$ is
-the seasonal component as the previous time point, and $\sigma^2_s$ is the variance
-of the seasonal component.
+the seasonal component as the previous time point, $\sigma^2_s$ is the variance of
+the seasonal component, and $_s_1, s_2, ..., s_{12}$ are the initial seasonal
+component values (associated with every month of a year).
 
 *Autoregressive Process:*
 
@@ -243,13 +246,7 @@ $$X_t = \phi \cdot y_{t-1} + \epsilon_t$$
 
 where is $\phi_i$ is the autoregressive component at lags 1 (since we assume an AR(1) 
 process) is the unemployment rate at the previous time point., and $\epsilon_t$ is 
-the white noise.
-
-*White Noise:*
-The white noise is given as:
-$$Z_t \sim \text{Normal}(0, \sigma^2_Z)$$
-
-where $\sigma^2_Z$ is the variance of the white noise.
+the white noise (this is implicitly modeled as part of the observation error). 
 \
 
 **Hyperparameters and Hyperpriors**
@@ -264,26 +261,26 @@ $\alpha_m = 2$ and $\beta_m = 2.348358$.
 $\alpha_m = 2$ and $\beta_m = 1.528651$.
 
 *Autoregressive Component:* $\phi \sim \text{Normal}(0, 1)$
-
-*White Noise Variance:* $\sigma^2_Z \sim \text{Inverse-Gamma}(\alpha_Z, \beta_Z)$, 
-where $\alpha_m = 2$ and $\beta_m = 0.004663646$.
 \
 
 **Stan Code** - Please go to Appendix E to see the implementation of the above model
-in Stan.
+in Stan. I, however, did not use this implementation as it was too computationally
+intensive, especially with regards to predictive testing.
+
+**`bsts` Code** - Please go to Appendix F to see the implementation of the above model
+using the `bsts` library, which is an R library built for working with BSTS models.
 
 
 
-## Justifying the Hyperpriors
+## Motivations of Priors
 
 To justify the hyperpriors and set the hyperparameters, we analysed the historical
 unemployment rates to inform the choice of prior distributions for the observation 
-noise variance, trend variance, seasonal variance, and white noise variance. Note, 
-that we are assumed that the white noise variance is a fraction of the observation 
-noise. 
+noise variance, trend variance, and seasonal variance.
 
 The $\alpha$ (shape) values are set to $\alpha = 2$ to ensure that the prior is relatively
-informative, thus allowing the data to play a significant role in the posterior distribution.
+uninformative (weak prior belief), thus allowing the data to play a significant role 
+in the posterior distribution.
 
 The $\beta$ (scale) values are informed the respective variance estimates, and for each 
 component $\beta = \text{variance estimate} \times (\alpha - 1)$, centering the prior
@@ -303,13 +300,14 @@ observed trend stability.
 positive, data-informed seasonal variations in unemployment rates, tailored by its
 $\alpha_s$ and $\beta_s$ values.
 
+*Initial Trend* $m_1$ *and Seasonal Components* $s_1, s_2, ..., s_{12}$: 
+Normal distributions with mean 0 and the trend/seasonal variance, respectively, are 
+used for their flexibility in the initial values while constraining them within reasonable
+bounds set by their respective trend and seasonal variances.
+
 *Autoregressive Component* $\phi$: A Normal distribution with mean 0 and variance
 1 indicates no initial bias towards trend direction or strength, allowing data to
 define unemployment rate persistence.
-
-*White Noise Variance* $\sigma^2_Z$: An Inverse-Gamma distribution is used with 
-$\alpha_Z$ and $\beta_Z$ values set based on random variability in the data, thus
-accounting for the unexplained noise in the data.
 \
 
 [To be added]
@@ -475,15 +473,20 @@ This period is long enough to test the model's ability to predict under potentia
 different economic conditions (for example the COVID-19 pandemic).
 \
 
-**Section 2: Creating a Time Series Object for the Training Set**
+**Section 2: Creating a Time Series Object for the Training and Testing Sets**
 
 ```{r}
 
 start_train <- c(1948, 1)
 end_train <- c(2010, 12)
+start_test <- c(2011, 1)
+end_test <- c(2024, 2)
 
 ts_unrate_train <- 
   ts(dat_train$UNRATE, start = start_train, end = end_train, frequency = 12)
+
+ts_unrate_test <- 
+  ts(dat_test$UNRATE, start = start_test, end = end_test, frequency = 12)
 
 ```
 
@@ -613,11 +616,8 @@ and scalability of BSTS models, making it a powerful tool for time series analys
 **References**
 
 “Bayesian Structural Time Series.” 
-*SAP HANA Predictive Analysis Library (PAL)*, help.sap.com/docs/
-
-SAP_HANA_PLATFORM/
-2cfbc5cf2bc14f028cfbe2a2bba60a50/
-b9972576368640da9831d73a9d749c3b.html. 
+*SAP HANA Predictive Analysis Library (PAL)*, help.sap.com/docs/SAP_HANA_PLATFORM/
+2cfbc5cf2bc14f028cfbe2a2bba60a50/b9972576368640da9831d73a9d749c3b.html. 
 Accessed 8 Apr. 2024. 
 
 Radtke, Tim. “Minimize Regret.” *Minimize Regret - Rediscovering Bayesian Structural 
@@ -653,20 +653,16 @@ trend_variance_estimate <- var(resid(trend_model))
 seasonal_differences <- diff(ts_unrate_train, lag = 12)
 seasonal_variance_estimate <- var(seasonal_differences)
 
-white_noise_variance_estimate <- obs_noise_variance_estimate * 0.1
-
 alpha <- 2
 
 beta_obs_noise <- obs_noise_variance_estimate * (alpha - 1)
 beta_trend <- trend_variance_estimate * (alpha - 1)
 beta_seasonal <- seasonal_variance_estimate * (alpha - 1)
-beta_white_noise <- white_noise_variance_estimate * (alpha - 1)
 
 cat("Inverse-Gamma alpha:", alpha, "\n")
 cat("Inverse-Gamma beta for Observation Noise:", beta_obs_noise, "\n")
 cat("Inverse-Gamma beta for Trend:", beta_trend, "\n")
 cat("Inverse-Gamma beta for Seasonal:", beta_seasonal, "\n")
-cat("Inverse-Gamma beta for White Noise:", beta_white_noise, "\n")
 
 ```
 
@@ -679,26 +675,21 @@ cat("Inverse-Gamma beta for White Noise:", beta_white_noise, "\n")
 
 ## Appendix E - BSTS Model in Stan
 
-Please see below the implementation of the BSTS model on US unemployment rate using
-Stan.
-
 ```{r}
 
 us_unemployment_rates_bsts_model <- "
 data {
-  int<lower=1> T;                   // Number of time points
-  vector[T] y;                      // Observed unemployment rates
+  int<lower=1> T;                       // Number of time points
+  vector[T] y;                          // Observed unemployment rates
 }
 
 parameters {
-  vector[T] mt;                     // Trend component
-  vector[T] st;                     // Seasonal component
-  vector[T] Zt;                     // White noise component
-  real<lower=0> sigma_y;            // Standard deviation of observation noise
-  real<lower=0> sigma_m;            // Standard deviation of trend component
-  real<lower=0> sigma_s;            // Standard deviation of seasonal component
-  real<lower=0> sigma_Z;            // Standard deviation of white noise component
-  real<lower=-1, upper=1> phi;      // Autoregressive coefficient
+  vector[T] mt;                         // Trend component
+  vector[T] st;                         // Seasonal component
+  real<lower=0> sigma_y;                // Std dev of observation noise
+  real<lower=0> sigma_m;                // Std dev of trend component
+  real<lower=0> sigma_s;                // Std dev of seasonal component
+  real<lower=-1, upper=1> phi;          // Autoregressive coefficient
 }
 
 model {
@@ -706,29 +697,80 @@ model {
   sigma_y ~ inv_gamma(2, 0.04663646);
   sigma_m ~ inv_gamma(2, 2.348358);
   sigma_s ~ inv_gamma(2, 1.528651);
-  sigma_Z ~ inv_gamma(2, 0.004663646);
-  phi ~ normal(0, 1);
+  phi ~ normal(0, 1);                   // Autoregressive prior
 
-  // Trend component
+  // Prior for the initial trend component
+  mt[1] ~ normal(0, sigma_m); 
+
+  // Trend component model
   for (t in 2:T) {
-    mt[t] ~ normal(mt[t-1], sigma_m);
+    mt[t] ~ normal(mt[t-1], sigma_m); 
   }
   
-  // Seasonal component
-  // Assuming S = 12 for monthly data
+  // Priors for the initial seasonal component values
+  for (s in 1:12) {
+    st[s] ~ normal(0, sigma_s);
+  }
+  
+  // Seasonal component model
   for (t in 13:T) {
-    st[t] ~ normal(-sum(st[(t-11):(t-1)]) / 11, sigma_s);
+    st[t] ~ normal(-sum(st[(t-11):(t-1)]) / 11, sigma_s); 
   }
-  
-  // White noise component
-  Zt ~ normal(0, sigma_Z);
+
+  // Initial observation
+  y[1] ~ normal(mt[1] + st[1], sigma_y); 
   
   // Observation model with AR(1) process
   for (t in 2:T) {
-    y[t] ~ normal(mt[t] + st[t] + phi * y[t-1] + Zt[t], sigma_y);
+    y[t] ~ normal(mt[t] + st[t] + phi * y[t-1], sigma_y); 
   }
-}
-"
+}"
+
+```
+
+
+
+\clearpage
+
+
+
+
+## Appendix F - BSTS Model Implementation using the `bsts` Library
+
+```{r}
+
+# # Model specification
+# state_space <- list()
+# 
+# # Adding a local level (trend) component
+# state_space <- AddLocalLinearTrend(state_space, ts_unrate_train)
+# 
+# # Adding a seasonal component with a 12-month cycle
+# state_space <- AddSeasonal(state_space, y = ts_unrate_train, nseasons = 12)
+# 
+# # Adding an AR(1) component
+# state_space <- AddAr(state_space, y = ts_unrate_train, lags = 1)
+# 
+# # Fit the BSTS model
+# model <- bsts(ts_unrate_train, state.specification = state_space, niter = 10000)
+# 
+# # Predicting future values
+# prediction <- predict(model, horizon = length(ts_unrate_test), burn = SuggestBurn(0.1, model))
+# 
+# # Plotting the forecast with credible intervals
+# plot(prediction, plot.original = 12) # 'plot.original = 12' plots the last 12 months of the training data along with the forecast
+# 
+# # Calculating MAE and RMSE
+# predicted_means <- as.numeric(prediction$mean)
+# actuals <- as.numeric(ts_unrate_test)
+# 
+# # MAE
+# mae <- mean(abs(predicted_means - actuals))
+# cat("Mean Absolute Error (MAE):", mae, "\n")
+# 
+# # RMSE
+# rmse <- sqrt(mean((predicted_means - actuals)^2))
+# cat("Root Mean Squared Error (RMSE):", rmse, "\n")
 
 ```
 
