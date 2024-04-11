@@ -679,11 +679,56 @@ cat("Inverse-Gamma beta for White Noise:", beta_white_noise, "\n")
 
 ## Appendix E - BSTS Model in Stan
 
-Please see below the implementation of the BSTS model on US unemployment rate in Stan.
+Please see below the implementation of the BSTS model on US unemployment rate using
+Stan.
 
 ```{r}
 
-# TODO
+us_unemployment_rates_bsts_model <- "
+data {
+  int<lower=1> T;                   // Number of time points
+  vector[T] y;                      // Observed unemployment rates
+}
+
+parameters {
+  vector[T] mt;                     // Trend component
+  vector[T] st;                     // Seasonal component
+  vector[T] Zt;                     // White noise component
+  real<lower=0> sigma_y;            // Standard deviation of observation noise
+  real<lower=0> sigma_m;            // Standard deviation of trend component
+  real<lower=0> sigma_s;            // Standard deviation of seasonal component
+  real<lower=0> sigma_Z;            // Standard deviation of white noise component
+  real<lower=-1, upper=1> phi;      // Autoregressive coefficient
+}
+
+model {
+  // Hyperpriors
+  sigma_y ~ inv_gamma(2, 0.04663646);
+  sigma_m ~ inv_gamma(2, 2.348358);
+  sigma_s ~ inv_gamma(2, 1.528651);
+  sigma_Z ~ inv_gamma(2, 0.004663646);
+  phi ~ normal(0, 1);
+
+  // Trend component
+  for (t in 2:T) {
+    mt[t] ~ normal(mt[t-1], sigma_m);
+  }
+  
+  // Seasonal component
+  // Assuming S = 12 for monthly data
+  for (t in 13:T) {
+    st[t] ~ normal(-sum(st[(t-11):(t-1)]) / 11, sigma_s);
+  }
+  
+  // White noise component
+  Zt ~ normal(0, sigma_Z);
+  
+  // Observation model with AR(1) process
+  for (t in 2:T) {
+    y[t] ~ normal(mt[t] + st[t] + phi * y[t-1] + Zt[t], sigma_y);
+  }
+}
+"
 
 ```
 
