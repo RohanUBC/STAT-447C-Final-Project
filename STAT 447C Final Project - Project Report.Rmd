@@ -1,11 +1,14 @@
 ---
 title: "Bayesian Time Series Analysis of US Unemployment Rates"
-author: |
-  | STAT 447C Final Project - Project Report
-  |
-  | Rohan Joseph (67089839)
+author: "STAT 447C Final Project - Project Report | Rohan Joseph (67089839)"
 date: "Due Date: April 19th 2024"
-output: pdf_document
+# output: pdf_document
+output:
+  pdf_document:
+    latex_engine: xelatex
+header-includes:
+  - \usepackage{geometry}
+  - \geometry{left=1.5cm, top=1.5cm, right=1.5cm, bottom=1.5cm}
 ---
 
 ```{r setup, include = FALSE}
@@ -16,28 +19,15 @@ library(ggplot2)
 library(readr)
 library(tseries)
 library(forecast)
+library(rstan)
 
 ```
 
 
 
-# Key Details
-
-- **Student(s):** Rohan Joseph (Student No.: 67089839)
-- **Professor:** Alexandre Bouchard-Côté 
-- **Course:** STAT 447C - Bayesian Statistics
-- **GitHub Repository Link:** https://github.com/RohanUBC/STAT-447C-Final-Project
 
 
-
-
-
-# Abstract
-
-- Brief summary of objectives, methods, key results, focus on uncertainty quantification
-and calibration.
-
-[To be added]
+*Project GitHub URL:* https://github.com/RohanUBC/STAT-447C-Final-Project
 
 
 
@@ -45,32 +35,23 @@ and calibration.
 
 # Introduction
 
-- *Introduce the problem:* Forecasting US unemployment rates using Bayesian time series 
-analysis.
-- Provide context and the importance of understanding and predicting unemployment 
-rates.
-- The importance of forecasting and uncertainty quantification.
-- *Context:* Briefly explain the significance of unemployment rates in economic 
-planning and policy-making.
+The forecasting of US unemployment rates presents a complex and significant challenge 
+for US policy makers. Accurate predictions of these rates enables the US
+government and businesses to make informed economic decisions, adapt to economic shifts,
+and implement strategies to foster stability and growth in the US economy. Furthermore,
+the unpredictability of labor markets, influenced by factors ranging from global 
+economic conditions to domestic policy changes, necessitates the use of sophisticated
+methods not only provide a framework for forecasting but also allow for the quantification
+of uncertainty in those forecasts. Understanding and predicting unemployment rates 
+is thus not only central to economic analysis but also to the well-being of the US
+economy.
 
-[To be added]
-
-
-
-## Problem Formulation
-
-The central focus of this project is to model and forecast unemployment rates in 
+The focus of this project is to model and forecast unemployment rates in 
 the United States (US), utilizing a real-world dataset that has documented the monthly
-unemployment rate (from 01/1948 to 02/2024) in the US. A key element of the project 
-is to accurately forecast these rates into the future while also quantifying the 
-inherent uncertainty of such forecasts. The dataset that is being used is from the 
-US Federal Reserve on monthly US unemployment rates.
+unemployment rate (from 01/1948 to 02/2024) in the US. The dataset that is being used 
+is from the US Federal Reserve on monthly US unemployment rates.
 
-*Federal Reserve Economic Data (FRED):* This dataset offer historical data on monthly 
-US unemployment rates (from 1948 to 2024) and their associated economic indicators.
-
-URL: https://fred.stlouisfed.org/series/UNRATE
-
+*URL:* https://fred.stlouisfed.org/series/UNRATE
 
 We will adopt a Bayesian time series analysis approach, utilizing a Bayesian Structural
 Time Series (BSTS) model to capture the dynamics of the US labor market based on the
@@ -81,9 +62,6 @@ and seasonality components. BSTS allows for the estimation of latent states, suc
 as trend and seasonal effects, and provides a framework for forecasting future states
 while quantifying uncertainty. Please see Appendix C on a general overview on the
 BSTS model.
-\
-
-**Key Modelling/Methodological Challenge**
 
 This project faces challenges in applying Bayesian time series analysis with BSTS
 to economic data, particularly in modeling the seasonal patterns and long-term trends
@@ -97,7 +75,7 @@ to ensure accurate representation of the data.
 
 In addition, we aim to also include a calibration of the uncertainty of the forecast,
 demanding a sophisticated approach in how the model is constructed and validated. 
-This is done to ensure that the forecasts are not only precise, but also accompanied 
+This is done to ensure that the forecasts are not only precise, but are also accompanied 
 by reliable uncertainty measures. Such measures are pivotal for economic planning 
 and policy-making, providing a foundation for risk-aware decision-making. By accurately
 quantifying forecast uncertainty, this approach aims to assess potential risks effectively, 
@@ -123,6 +101,221 @@ rate analysis.
 
 # Data Analysis
 
+
+## Splitting the Dataset into Training and Testing Sets
+
+We will be using all the data up until 12/2020 as the training set, and have the
+remaining data (from 01/2021 to 02/2024) as the testing set (see Appendix B - Section 1).
+With 756 observations for training, the training set has a significant amount of historical 
+data, spanning over 60 years, to learn from. This period should include multiple economic 
+cycles, which can help in capturing the underlying economic dynamics. The test set 
+has 158 observations, allowing the model to be validated against more recent data 
+while also allowing to test the model's ability to predict under potentially different
+economic conditions (for example the COVID-19 pandemic).
+
+
+
+## Setting up the BSTS Model
+
+As established in Appendix C, the general BSTS model consists of two sets of equations:
+the observational (response variable) and the state-space equations (how the parameters
+change over time). In a BSTS model, we would have to decide on whether an additive
+or multiplicative model was appropriate as the observational model, and also what 
+specific components are relevant as part of the state-space of the BSTS model (trend,
+seasonality, etc.). In order to do this, we need to analyse the decomposition and
+autocorrelation (ACF) plots of a time series of the training set (see Appendix B).
+The decomposition and ACF plots of additive model are displayed in Figures 3 and 4,
+respectively, in Appendix B. Similarly, the decomposition and ACF plots of the multiplicative
+model are displayed in Figures 5 and 6, respectively, in Appendix B.
+\
+
+**Key Definitions:**
+
+*Decomposition of a Time Series:* This involves separating a time series into its 
+constituent components, such as trend, seasonality, and noise, to better understand 
+its underlying patterns and behaviors.
+
+*Autocorrelation:* This is the correlation between a time series and its own lagged 
+values, revealing how past observations relate to present or future values within
+the same series.
+
+*Autocorrelation Function (ACF) Plot:* This is a visual representation of the correlation
+between a time series and its lagged values at different lags, which helps to identify
+patterns of autocorrelation and inform the selection of appropriate models for time
+series analysis.
+
+
+
+## Analysis of the Decomposition and ACF Plots
+
+Based on the additive and multiplicative decomposition plots and their respective
+autocorrelation (ACF) plots, we can establish the following:
+
+*ACF of Residuals:* Both the additive and multiplicative decompositions shows 
+significant autocorrelation at lag 1 in the residuals, suggesting that neither decomposition
+fully captures the autocorrelative structure of the series.
+
+*Decomposition of the Observed Time Series:* The additive and multiplicative decomposition
+residuals do not show any clear pattern or trends, which would indicate that both
+models may be viable.
+
+*Seasonal Patterns:* The seasonality in the additive plot is consistent and doesn't
+appear to change with the level of the series, indicating an additive nature. The
+multiplicative plot, while proportional, doesn't show a clear advantage over the 
+additive model with regards to the residuals.
+
+While neither model is perfectly viable, an additive model may be
+more useful because the seasonality doesn't seem to be increasing or decreasing in
+amplitude, suggesting a constant seasonality over time, and also because the residuals
+from the additive model do not show patterns that would indicate multiplicative effects.
+\
+
+**Trend Component**
+
+From the decomposition plots we can see that there is no long-term trend in the 
+unemployment rates but that there are instances of increases and decreases in the
+unemployment rate, potentially influenced by other economic factors. For the BSTS
+model, the trend component would need to reflect long-term economic changes, without
+being affected by short-term changes. So, modelling the trend as a normally distributed
+value around its previous state, with a controlled variance, would allows it to evolve
+steadily.
+\
+
+**Seasonal Component:**
+
+From the decomposition plots we can see a consistent pattern that repeats with a 
+fixed frequency, which is indicates that there is the presence of seasonality in
+the data. For the BSTS model the seasonal component would need to account for predictable,
+repetitive patterns in unemployment rates. By constraining the seasonal effects to
+sum to zero over a year, the model would ensure that it captures the seasonality
+without influencing the overall trend of the unemployment rates. The sum would be
+normally distributed with a variance parameter allowing for some annual variation.
+\
+
+**Autoregressive Component**
+
+Considering the presence of autocorrelation at lag 1 in the residuals of both models,
+it would be crucial to consider a model accounting for this. In a BSTS model, the
+autocorrelation can be modeled by adding an autoregressive (AR) component as part
+of the state space model, specifically an AR(1) process. In general, the autoregressive 
+component $X_t$ evolves over time as $X_t = \sum_{i=1}^{p} \phi_i \cdot X_{t-i} + \epsilon_t$, 
+where $\phi_i$ are the autoregressive components for lags $i = 1, 2, ..., p$, $p$ 
+is the order of the autoregressive process, and $\epsilon_t$ is the white noise.
+However, since we are considering an AR(1) model (so $p = 1$), this simplifies to
+$X_t = \phi \cdot X_{t-1} + \epsilon_t$.
+\
+
+
+
+
+## BSTS Model for US Unemployment Rates
+
+
+**BSTS Model Specification**
+
+*Observation Model:*
+The observed unemployment rate at time $t$, $y_t$, is modeled as:
+$$y_t \sim \text{Normal}(m_t + s_t + X_t + Z_t, \sigma^2_y)$$
+
+where $m_t$ represents the trend component, $s_t$ denotes the seasonal component, 
+$X_t$ denotes the autoregressive process, $Z_t$ is the white noise, and $\sigma^2_y$
+is the observation variance.
+
+*Local Level (Trend) Component:*
+The trend component $m_t$ evolves over time as:
+$$m_t \sim \text{Normal}(m_{t-1}, \sigma^2_m)$$
+
+where $m_{t-1}$ is the trend component at the previous time point, and $\sigma^2_m$
+is the variance of the trend component.
+
+*Seasonal Component:*
+The seasonal component $s_t$ evolves over time as:
+$$s_t \sim \text{Normal}\left(-\sum_{i=1}^{S-1} s_{t-i}, \sigma^2_{s}\right)$$
+
+where $S$ is the seasonal period (in this case $S = 12$) for monthly, $s_{t-i}$ is
+the seasonal component as the previous time point, and $\sigma^2_s$ is the variance
+of the seasonal component.
+
+*Autoregressive Process:*
+
+The autoregressive process $X_t$ evolves over time as:
+$$X_t = \phi \cdot y_{t-1} + \epsilon_t$$
+
+where is $\phi_i$ is the autoregressive component at lags 1 (since we assume an AR(1) 
+process) is the unemployment rate at the previous time point., and $\epsilon_t$ is 
+the white noise.
+
+*White Noise:*
+The white noise is given as:
+$$Z_t \sim \text{Normal}(0, \sigma^2_Z)$$
+
+where $\sigma^2_Z$ is the variance of the white noise.
+\
+
+**Hyperparameters and Hyperpriors**
+
+*Observation Noise Variance:* $\sigma^2_y \sim \text{Inverse-Gamma}(\alpha_y, \beta_y)$,
+where $\alpha_y = 2$ and $\beta_y = 0.04663646$.
+
+*Trend Variance:* $\sigma^2_m \sim \text{Inverse-Gamma}(\alpha_m, \beta_m)$, where
+$\alpha_m = 2$ and $\beta_m = 2.348358$.
+
+*Seasonal Variance:* $\sigma^2_s \sim \text{Inverse-Gamma}(\alpha_s, \beta_s)$, where
+$\alpha_m = 2$ and $\beta_m = 1.528651$.
+
+*Autoregressive Component:* $\phi \sim \text{Normal}(0, 1)$
+
+*White Noise Variance:* $\sigma^2_Z \sim \text{Inverse-Gamma}(\alpha_Z, \beta_Z)$, 
+where $\alpha_m = 2$ and $\beta_m = 0.004663646$.
+\
+
+**Stan Code** - Please go to Appendix E to see the implementation of the above model
+in Stan.
+
+
+
+## Justifying the Hyperpriors
+
+To justify the hyperpriors and set the hyperparameters, we analysed the historical
+unemployment rates to inform the choice of prior distributions for the observation 
+noise variance, trend variance, seasonal variance, and white noise variance. Note, 
+that we are assumed that the white noise variance is a fraction of the observation 
+noise. 
+
+The $\alpha$ (shape) values are set to $\alpha = 2$ to ensure that the prior is relatively
+informative, thus allowing the data to play a significant role in the posterior distribution.
+
+The $\beta$ (scale) values are informed the respective variance estimates, and for each 
+component $\beta = \text{variance estimate} \times (\alpha - 1)$, centering the prior
+mean around the estimate while also allowing for some uncertainty.
+
+Please see Appendix D to see the R code used to set the $\alpha$ and $\beta$ values.
+
+*Observation Noise Variance* $\sigma^2_y$: An Inverse-Gamma distribution is used to
+ensure positivity, with the $\alpha_y$ and $\beta_y$ values informed by historical data
+to reflect the inherent unpredictability in unemployment rates.
+
+*Trend Variance* $\sigma^2_m$: An Inverse-Gamma distribution is used to capture the
+variability in the long-term trend, where $\alpha_m$ and $\beta_m$ adjusts for the 
+observed trend stability.
+
+*Seasonal Variance* $\sigma^2_s$: An Inverse-Gamma distribution is used to ensure
+positive, data-informed seasonal variations in unemployment rates, tailored by its
+$\alpha_s$ and $\beta_s$ values.
+
+*Autoregressive Component* $\phi$: A Normal distribution with mean 0 and variance
+1 indicates no initial bias towards trend direction or strength, allowing data to
+define unemployment rate persistence.
+
+*White Noise Variance* $\sigma^2_Z$: An Inverse-Gamma distribution is used with 
+$\alpha_Z$ and $\beta_Z$ values set based on random variability in the data, thus
+accounting for the unexplained noise in the data.
+\
+
+[To be added]
+
+
+
 - *Model:* A Bayesian model is precisely described (e.g., using the ... ~ ... notation).
   - Description of BSTS for modeling unemployment rates.
 - Implementation code in the appendix (e.g., using Stan)
@@ -140,70 +333,6 @@ diagnostics, synthetic datasets and other validation strategies.
   - Explanation of calibration tests for predictive intervals.
   - Presentation of calibration test results.
   - Analysis of how well the model's uncertainty measures align with observed data.
-
-[To be added]
-
-
-
-## BSTS Model for US Unemployment Rates
-
-**BSTS Model Specification**
-
-*Observation Model:*
-The observed unemployment rate at time $t$, $y_t$, is modeled as:
-$$ y_t = \mu_t + \tau_t + \epsilon_t $$
-
-where:
-
-- $\mu_t$ represents the trend component.
-- $\tau_t$ denotes the seasonal component.
-- $\epsilon_t$ is the observation error.
-
-The observation error $\epsilon_t$ follows a Normal distribution with mean 0 and 
-variance $\sigma^2_y$:
-$$ \epsilon_t \sim N(0, \sigma^2_y) $$
-
-*Local Level (Trend) Component:*
-The trend component $\mu_t$ evolves over time as:
-$$ \mu_{t+1} = \mu_t + \eta_{\mu,t} $$
-
-where $\eta_{\mu,t}$ represents the trend shock at time $t$.
-
-$\eta_{\mu,t}$ follows a Normal distribution:
-$$ \eta_{\mu,t} \sim N(0, \sigma^2_{\mu}) $$
-
-*Seasonal Component:*
-The seasonal component $\tau_t$ adjusts for seasonality, following a similar evolution:
-$$ \tau_{t+1} = - \sum_{s=1}^{S-1}\tau_{t-s} + \eta_{\tau,t} $$
-where:
-
-- $S$ is the seasonal period (in this case $S = 12$ for monthly.
-- $\eta_{\tau,t}$ represents the seasonal shock.
-
-$\eta_{\tau,t}$ follows a Normal distribution:
-$$ \eta_{\tau,t} \sim N(0, \sigma^2_{\tau}) $$
-\
-
-**Hyperparameters and Hyperpriors:**
-
-*Observation Noise Variance* $\sigma^2_y$:
-
-- Hyperprior: $\sigma^2_y \sim \text{Inverse-Gamma}(\alpha_y, \beta_y)$
-- Where, $\alpha_y = 2$ and $\beta_y = 0.5228194$, based on the ARIMA residuals.
-
-*Trend Variance* $\sigma^2_{\mu}$:
-
-- Hyperprior: $\sigma^2_{\mu} \sim \text{Inverse-Gamma}(\alpha_{\mu}, \beta_{\mu})$
-- Where, $\alpha_{\mu} = 2$ and $\beta_{\mu} = 7.724585$, derived from the decomposition 
-of the trend component.
-
-*Seasonal Variance* $\sigma^2_{\tau}$:
-
-- Hyperprior: $\sigma^2_{\tau} \sim \text{Inverse-Gamma}(\alpha_{\tau}, \beta_{\tau})$
-- Where, $\alpha_{\tau} = 2$ and $\beta_{\tau} = 0.007432969$, derived from the 
-decomposition of the seasonal component.
-
-
 
 
 
@@ -256,7 +385,7 @@ or potential biases.
 ## Appendix A - Preliminary Data Analysis
 
 
-**Reading in the Dataset**
+**Reading in the Dataset and Data Cleaning**
 
 ```{r}
 
@@ -269,22 +398,25 @@ head(dat)
 
 **Historical US Unemployment Rates from 01/1948 to 02/2024**
 
+*Figure 1: Historical US Unemployment Rate Over Time*
 ```{r, fig.align = "center", fig.width = 7, fig.height = 4}
 
 plot(dat$DATE, dat$UNRATE, 
-     type = "o",
-     pch = 20, 
+     type = "o", pch = 20, 
      col = "red", 
      xlab = "Date", 
-     ylab = "Unemployment Rate (in %)",
-     main = "Figure 1: Historical US Unemployment Rate Over Time")
+     ylab = "Unemployment Rate (in %)")
 lines(dat$DATE, dat$UNRATE, col = "black")
 
 ```
 
 
+\clearpage
+
+
 **Average Yearly US Unemployment Rates from 01/1948 to 02/2024**
 
+*Figure 2: Average Yearly Unemployment Rate in the US*
 ```{r, fig.align = "center", fig.width = 7, fig.height = 4}
 
 avg_yearly_unrate <- dat |>
@@ -295,12 +427,10 @@ avg_yearly_unrate <- dat |>
 avg_yearly_unrate$YEAR <- as.numeric(as.character(avg_yearly_unrate$YEAR))
 
 plot(avg_yearly_unrate$YEAR, avg_yearly_unrate$Average_Unemployment_Rate,
-     type = "o", 
-     pch = 20,
+     type = "o", pch = 20,
      col = "red", 
      xlab = "Year", 
-     ylab = "Average Unemployment Rate (in %)",
-     main = "Figure 2: Average Yearly Unemployment Rate in the US")
+     ylab = "Average Unemployment Rate (in %)")
 lines(avg_yearly_unrate$YEAR, avg_yearly_unrate$Average_Unemployment_Rate, col = "black")
 
 ```
@@ -313,33 +443,141 @@ lines(avg_yearly_unrate$YEAR, avg_yearly_unrate$Average_Unemployment_Rate, col =
 ## Appendix B - Time Series Analysis
 
 
-**Decomposition of the Time Series**
+**Section 1: Setting up the Training and Testing Sets**
 
-```{r, fig.align = "center", fig.width = 7, fig.height = 6}
+We will be using all the data up until 12/2020 as the training set, and have the
+remaining data (from 01/2021 to 02/2024) as the testing set.
 
-ts_unrate <- ts(dat$UNRATE, start = c(1948, 1), frequency = 12)
-decompose_of_ts = stl(ts_unrate, s.window = "periodic")
-plot(decompose_of_ts, 
-     main = "Figure 3: Decomposition of the Time Series of US Unemployment Rates")
+```{r}
+
+start_date <- as.Date("1948-01-01")
+train_end_date <- as.Date("2010-12-01")
+test_start_date <- as.Date("2011-01-01")
+end_date <- as.Date("2024-02-01")
+
+dat_train <- subset(dat, DATE <= train_end_date)
+dat_test <- subset(dat, DATE >= test_start_date)
+
+nrow(dat_train)
+nrow(dat_test)
 
 ```
 
-*Trend:* The trend plot in the decomposition suggests that there doesn't seem to
-be any particular long-term trend in the US unemployment rates, however, there are
-periods where the unemployment rate exhibits some trends, which seem to be non-linear
-and varying with time.
+With 756 observations for training, the training set still has a significant amount
+of historical data, spanning over 60 years, to learn from. This period should include
+multiple economic cycles, which can help in capturing the underlying economic dynamics.
+The test set has 158 observations, allowing your model to be validated against more
+recent data, covering a period of over 13 years
 
-*Seasonality:* The seasonal plot in the decomposition suggests that there is seasonal 
-variation in the US unemployment rates, and there is a consistent interval in the
-variation of the seasonality. The consistent interval in the seasonality suggests 
-a stable seasonal effect that repeats annually.
+This split allows for the assessment of the model's performance across multiple
+seasons and any potential structural breaks that may have occurred at the end of 2020.
+This period is long enough to test the model's ability to predict under potentially 
+different economic conditions (for example the COVID-19 pandemic).
+\
 
-*Remainder/Residual:* The remainder/residual plot of the decomposition appears to
-be relatively small compared to the seasonal and trend components, suggesting that 
-the model has captured most of the systematic structure in the data.
+**Section 2: Creating a Time Series Object for the Training Set**
+
+```{r}
+
+start_train <- c(1948, 1)
+end_train <- c(2010, 12)
+
+ts_unrate_train <- 
+  ts(dat_train$UNRATE, start = start_train, end = end_train, frequency = 12)
+
+```
 
 
 \clearpage
+
+
+**Section 3: Additive Decomposition of the Time Series**
+
+*Figure 3: Additive Decomposition of the Time Series of US Unemployment Rates*
+```{r, fig.align = "center", fig.width = 7, fig.height = 7}
+
+additive_decompose_of_ts_train <- decompose(ts_unrate_train, type = "additive")
+plot(additive_decompose_of_ts_train)
+
+```
+
+\clearpage
+
+*Figure 4: ACF of the residuals from the Additive Decomposition*
+```{r, fig.align = "center", fig.width = 7, fig.height = 4}
+
+resid_from_add_decomp <- additive_decompose_of_ts_train$random
+resid_from_add_decomp <- na.omit(resid_from_add_decomp)
+acf(resid_from_add_decomp)
+
+```
+
+*Additive Decomposition and ACF Plots Analysis:*
+
+Additive Decomposition Plot:
+
+- The observed time series displays cyclical fluctuations with varying amplitude.
+- The trend component shows long-term movement in the data, with periods of increases
+and decreases.
+- The seasonal component shows consistent seasonality within each year.
+- The residuals (random) component does not show any obvious pattern or changing
+variance over time.
+
+Additive Residuals ACF Plot:
+
+- The ACF of residuals from the additive decomposition shows a significant spike 
+at lag 1, indicating a potential autocorrelation at that lag.
+- The spikes at all subsequent lags are within the confidence interval, suggesting
+that there is no significant autocorrelation beyond lag 1.
+
+
+\clearpage
+
+
+**Section 4: Multiplicative Decomposition of the Time Series**
+
+*Figure 5: Multiplicative Decomposition of the Time Series of US Unemployment Rates*
+```{r, fig.align = "center", fig.width = 7, fig.height = 7}
+
+multiplicative_decompose_of_ts_train <- decompose(ts_unrate_train, type = "multiplicative")
+plot(multiplicative_decompose_of_ts_train)
+
+```
+
+\clearpage
+
+*Figure 6: ACF of the residuals from the Multiplicative Decomposition*
+```{r, fig.align = "center", fig.width = 7, fig.height = 4}
+
+resid_from_multi_decomp <- multiplicative_decompose_of_ts_train$random
+resid_from_multi_decomp <- na.omit(resid_from_multi_decomp)
+acf(resid_from_multi_decomp)
+
+```
+
+*Multiplicative Decomposition and ACF Plots Analysis:*
+
+Multiplicative Decomposition Plot:
+
+- The observed time series displays cyclical fluctuations with varying amplitude.
+- The trend component shows long-term movement in the data, with periods of increases
+and decreases.
+- The seasonal component shows consistent seasonality within each year.
+- The residuals (random) component does not show any obvious pattern or changing
+variance over time.
+
+Multiplicative Residuals ACF Plot:
+
+- The ACF of residuals from the additive decomposition shows a significant spike 
+at lag 1, indicating a potential autocorrelation at that lag.
+- The spikes at all subsequent lags are within the confidence interval, suggesting
+that there is no significant autocorrelation beyond lag 1.
+
+The multiplicative decomposition and ACF plots seems to be fairly similar.
+
+
+\clearpage
+
 
 
 
@@ -362,10 +600,10 @@ In the BSTS framework, BMA is utilized extensively to generate samples from repe
 Markov Chain Monte Carlo (MCMC) simulations into final model outputs, providing a 
 comprehensive prediction that encompasses model variability.
 
-A general BSTS model consists of two set of equations,
+A general BSTS model consists of twos set of equations,
 
 1. *Observational equation:* Response variable as a function of predictors and/or latent variables.
-2. *State equations:* How the parameters evolve over the time.
+2. *State-space equations:* How the parameters evolve over the time.
 
 BSTS models are usually implemented using the `bsts` package in R, but can also be
 implemented using `rstan`. Stan's advanced MCMC algorithms enhance the flexibility 
@@ -374,14 +612,18 @@ and scalability of BSTS models, making it a powerful tool for time series analys
 
 **References**
 
-“Bayesian Structural Time Series.” *SAP HANA Predictive Analysis Library (PAL)*, 
-help.sap.com/docs/
-SAP_HANA_PLATFORM/2cfbc5cf2bc14f028cfbe2a2bba60a50/b9972576368640da9831d73a9d749c3b.html. 
+“Bayesian Structural Time Series.” 
+*SAP HANA Predictive Analysis Library (PAL)*, help.sap.com/docs/
+
+SAP_HANA_PLATFORM/
+2cfbc5cf2bc14f028cfbe2a2bba60a50/
+b9972576368640da9831d73a9d749c3b.html. 
 Accessed 8 Apr. 2024. 
 
 Radtke, Tim. “Minimize Regret.” *Minimize Regret - Rediscovering Bayesian Structural 
 Time Series*, 
-minimizeregret.com/post/2020/06/07/rediscovering-bayesian-structural-time-series/. 
+minimizeregret.com/
+post/2020/06/07/rediscovering-bayesian-structural-time-series/. 
 Accessed 9 Apr. 2024. 
 
 Yabe, Taka. “Pystan - Causal Inference Using Bayesian Structural Time Series.” 
@@ -392,77 +634,63 @@ Yabe, Taka. “Pystan - Causal Inference Using Bayesian Structural Time Series.�
 
 
 
-## Appendix D - Estimation of Hyperparameters for BSTS Model Using the Empirical Bayes Model
+## Appendix D - Estimation of Hyperparameters for BSTS Model
 
 Before we can specify the BSTS model for the US Unemployment rates, we need to estimate
-the hyperparameters that will inform the prior distributions. To do this, we will 
-use an Empirical Bayes approach to estimate these hyper parameters from the data
-itself. 
-
-The Empirical Bayes method is used in scenarios where we have little prior 
-information about the hyper parameters, and involves using the data to estimate values 
-that will then inform our prior beliefs. This is particularly useful in predictive
-modeling, as it allows us to use data-driven estimates while still maintaining a 
-Bayesian framework.
-\
-
-**Defining the Hyperpriors for the Noise Variance**
-
-We fit an Auto-Regressive Integrated Moving Average (ARIMA) model to the unemployment
-rate time series to capture its temporal patterns. The ARIMA model's residuals provide
-an empirical basis for estimating the noise variance in the BSTS model.
+the hyperparameters that will inform the prior distributions. This involves analyzing
+historical unemployment rate data to inform the choice of prior distributions for 
+various model components, specifically the observation noise variance, trend variance,
+seasonal variance, and white noise variance. Note, that we are assuming that the 
+white noise variance is a fraction of the observation noise.
 
 ```{r}
 
-arima_fit <- auto.arima(ts_unrate)
-summary(arima_fit)
+obs_noise_variance_estimate <- var(diff(ts_unrate_train))
 
-```
+trend_model <- lm(ts_unrate_train ~ time(ts_unrate_train))
+trend_variance_estimate <- var(resid(trend_model))
 
-```{r}
+seasonal_differences <- diff(ts_unrate_train, lag = 12)
+seasonal_variance_estimate <- var(seasonal_differences)
 
-resid_var <- var(arima_fit$residuals)
+white_noise_variance_estimate <- obs_noise_variance_estimate * 0.1
 
-# We use a relatively small 2 to remain less informative
-alpha_y <- 2 
-beta_y <- (alpha_y + 1) * resid_var
+alpha <- 2
 
-sigma_sqr_y_prior <- list(shape = alpha_y, scale = beta_y)
-sigma_sqr_y_prior
+beta_obs_noise <- obs_noise_variance_estimate * (alpha - 1)
+beta_trend <- trend_variance_estimate * (alpha - 1)
+beta_seasonal <- seasonal_variance_estimate * (alpha - 1)
+beta_white_noise <- white_noise_variance_estimate * (alpha - 1)
 
-```
-
-
-**Defining the Hyperpriors for the Trend and Seasonal Components**
-
-We decompose the time series of the US unemployment rates data into its constituent
-element and evaluate the variances of these components.
-
-```{r}
-
-decomp <- stl(ts_unrate, s.window = "periodic")
-
-trend_var <- var(decomp$time.series[, "trend"])
-seasonal_var <- var(decomp$time.series[, "seasonal"])
-
-# We use a relatively small 2 to remain less informative
-alpha_mu <- 2   # For the trend component
-alpha_tau <- 2  # For the seasonal component
-
-beta_mu <- (alpha_mu + 1) * trend_var
-beta_tau <- (alpha_tau + 1) * seasonal_var
-
-sigma_sqr_mu_prior <- list(shape = alpha_mu, scale = beta_mu)
-sigma_sqr_mu_prior
-
-sigma_sqr_tau_prior <- list(shape = alpha_tau, scale = beta_tau)
-sigma_sqr_tau_prior
+cat("Inverse-Gamma alpha:", alpha, "\n")
+cat("Inverse-Gamma beta for Observation Noise:", beta_obs_noise, "\n")
+cat("Inverse-Gamma beta for Trend:", beta_trend, "\n")
+cat("Inverse-Gamma beta for Seasonal:", beta_seasonal, "\n")
+cat("Inverse-Gamma beta for White Noise:", beta_white_noise, "\n")
 
 ```
 
 
 
 \clearpage
+
+
+
+
+## Appendix E - BSTS Model in Stan
+
+Please see below the implementation of the BSTS model on US unemployment rate in Stan.
+
+```{r}
+
+# TODO
+
+```
+
+
+
+\clearpage
+
 
 
 
