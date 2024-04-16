@@ -345,7 +345,7 @@ and $\sigma^2_{\delta}$ is the variance of the trend slope.
 *Seasonal Component:*
 
 The seasonal component $s_t$ evolves over time as:
-$$s_t \sim \text{Normal}\left(-\frac{1}{S-1}\sum_{i=1}^{S-1} s_{t-i}, \sigma^2_{s}\right), \ \ \ \ \ \ \ \ \ \ \text{where} \ s_1, s_2, ..., s_{12} \sim \text{Normal}(0, \sigma^2_s), \ \text{and} \ \sigma^2_{\mu} \sim \text{Inverse-Gamma}(2, 1)$$
+$$s_t \sim \text{Normal}\left(-\frac{1}{S-1}\sum_{i=1}^{S-1} s_{t-i}, \sigma^2_{s}\right), \ \ \ \ \ \ \ \ \ \ \text{where} \ s_1, s_2, ..., s_{12} \sim \text{Normal}(0, \sigma^2_s), \ \text{and} \ \sigma^2_{s} \sim \text{Inverse-Gamma}(2, 1)$$
 
 where $S$ is the seasonal period (in this case $S = 12$) for monthly, $s_{t-i}$ is
 the seasonal component as the previous time point, $\sigma^2_s$ is the variance of
@@ -1023,46 +1023,4 @@ combined_summary_metrics
 \clearpage
 
 
-
-# Appendix G - Estimation of Hyperparameters for BSTS Model
-
-Before we can specify the BSTS model for the US Unemployment rates, we need to estimate
-the hyperparameters that will inform the prior distributions. This involves analyzing
-historical unemployment rate data to inform the choice of prior distributions for 
-various model components, specifically the observation noise variance, trend variance,
-seasonal variance, and white noise variance. Note, that we are assuming that the 
-white noise variance is a fraction of the observation noise.
-
-```{r}
-
-obs_noise_variance_estimate <- var(diff(ts_unrate_train), na.rm = TRUE)
-
-trend_model <- lm(ts_unrate_train ~ time(ts_unrate_train))
-trend_variance_estimate <- var(resid(trend_model), na.rm = TRUE)
-
-seasonal_differences <- diff(ts_unrate_train, lag = 12)
-seasonal_variance_estimate <- var(seasonal_differences, na.rm = TRUE)
-
-ar_model <- ar(ts_unrate_train, order = 1, method = "mle")
-sigma_X_empirical <- sd(residuals(ar_model), na.rm = TRUE)
-
-alpha <- 2
-
-beta_obs_noise <- obs_noise_variance_estimate * (alpha - 1)
-beta_trend <- trend_variance_estimate * (alpha - 1)
-beta_seasonal <- seasonal_variance_estimate * (alpha - 1)
-beta_AR_process <- sigma_X_empirical^2 * (alpha - 1)
-
-# Print final hyperparameters
-cat("Inverse-Gamma alpha:", alpha, "\n")
-cat("Inverse-Gamma beta for Observation Noise:", beta_obs_noise, "\n")
-cat("Inverse-Gamma beta for Trend:", beta_trend, "\n")
-cat("Inverse-Gamma beta for Seasonal:", beta_seasonal, "\n")
-cat("Inverse-Gamma beta for AR(1) process:", beta_AR_process, "\n")
-
-```
-
-
-
-\clearpage
 
