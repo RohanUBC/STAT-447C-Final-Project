@@ -1,7 +1,5 @@
 ---
-title: "Bayesian Time Series Analysis of US Unemployment Rates"
-author: "STAT 447C Final Project - Project Report | Rohan Joseph (67089839)"
-# date: "Due Date: 19th April 2024"
+title: "STAT 447C Final Project - Data Analysis"
 # output: pdf_document
 output:
   pdf_document:
@@ -39,75 +37,16 @@ set.seed(123)
 
 
 
-
-
-*Project GitHub URL:* https://github.com/RohanUBC/STAT-447C-Final-Project
-
-
-
-
-
-# Introduction
-
-The forecasting of US unemployment rates presents a complex and significant challenge 
-for US policy makers. Accurate predictions of these rates enables the US
-government and businesses to make informed economic decisions, adapt to economic shifts,
-and implement strategies to foster stability and growth in the US economy. Furthermore,
-the unpredictability of labor markets, influenced by factors ranging from global 
-economic conditions to domestic policy changes, necessitates the use of sophisticated
-methods not only provide a framework for forecasting but also allow for the quantification
-of uncertainty in those forecasts. Understanding and predicting unemployment rates 
-is thus not only central to economic analysis but also to the well-being of the US
-economy.
-
-The focus of this project is to model and forecast unemployment rates in 
-the United States (US), utilizing a real-world dataset that has documented the monthly
-unemployment rate (from 01/1948 to 02/2024) in the US. A further aim is to quantify
-the uncertainty of the forecast. This is done to ensure that the forecasts are not 
-only precise, but are also accompanied by reliable uncertainty measures. This approach
-aims to assess potential risks effectively, thereby facilitating more informed and 
-prudent economic decision making. The dataset that is being used is from the US Federal
-Reserve on monthly US unemployment rates.
-
-*URL:* https://fred.stlouisfed.org/series/UNRATE
-
-We will adopt a Bayesian time series analysis approach, utilizing a Bayesian Structural
-Time Series (BSTS) model to capture the dynamics of the US labor market based on the
-provided data. This involves uncovering and modeling historical trends and seasonal 
-patterns within the data, providing probabilistic forecasts of future unemployment rates.
-We opt for BSTS due to its flexibility in modeling complex time series data with trend
-and seasonality components. BSTS allows for the estimation of latent states, such 
-as trend and seasonal effects, and provides a framework for forecasting future states
-while quantifying uncertainty. Please see Appendix C on a general overview on the
-BSTS model.
-
-This project will face challenges in applying Bayesian time series analysis to economic 
-data, particularly in modeling the seasonal patterns and long-term trends inherent 
-in unemployment rates. The primary challenge lies in identifying the specific type
-of model, as well its specific components. This would require diving into the inherent
-structure of the data, while also validating the model's performance through error
-metrics and posterior predictive checks. 
-
-
-
-## Literature Review
-
-- Summarize key findings from existing literature on Bayesian forecasting and unemployment
-rate analysis.
-- Highlight gaps your project aims to fill or how it builds upon previous work.
-- Discussion of uncertainty quantification in economic forecasting.
-- Calibration of probabilistic forecasts in existing literature.
-
-[To be added]
-
-
-\clearpage
-
-
-
-
-
 # Data Analysis
+
+
+
+**Splitting the Dataset into Training and Testing Sets**
+
+We will be using all the data up until 02/2023 as the training set, and have the
+remaining data (from 02/2023 to 02/2024) as the testing set (see Appendix B - Section 1).
+We will be testing models to predict the monthly unemployment rates for the next year.
+
 
 
 ## Framework of Model
@@ -120,9 +59,6 @@ the time series, the autocorrelation (ACF) plot, and the partial autocorrelation
 plot, of the time series. This would also help us consider want components of a time
 series should be included in the model (for e.g., trend, seasonality, auto-regressive,
 etc.). All of this will be done on the training set and all code is available in Appendix B.
-
-*NOTE:* We will be using all the data up until 02/2023 as the training set, and the 
-remaining data (from 02/2023 to 02/2024) as the testing set (see Appendix B - Section 1).
 \
 
 **Key Definitions:**
@@ -183,7 +119,10 @@ sense to simply isolate a few. However, the `bsts` library allows the data to se
 lag values through its `AutoAr()` function, which can be added to the state-space 
 for any models being constructed. By doing this, we are acknowledging the broader
 range of autocorrelation patterns revealed by the ACF plot. Hence, all models will
-have an auto AR process.
+add an auto AR process into its model specification. 
+
+*NOTE* - We specify an "auto AR" process as an AR(p) process with no specific lag(s).
+In this case, the data directly will be used to set the AR(p) process for the model.
 \
 
 **Model Selection Strategy**
@@ -226,6 +165,10 @@ as the sample size increases.
 *Percentage Error):* These error metrics provide insights into the average error magnitude,
 error variance, and error proportionality respectively, contributing to a comprehensive 
 understanding of model accuracy.
+
+Finally, a decision matrix was applied to integrate these metrics into a single score 
+for each model. The code used to generate the above statistics are available in Appendix
+D - Section 1.
 \
 
 **Results of the Initial Model Selection**
@@ -236,28 +179,29 @@ were built and compiled, and Appendix D - Section 3 to see the code used for the
 decision matrix and the table of composite scores.
 
 
-The model with an "additive" model type and a "semi-local linear" trend component 
-scored the highest. This model achieved the best balance between complexity and fit
-with the lowest MAE, MAPE, and RMSE, suggesting high accuracy and efficiency in forecasts. 
-In addition, the "additive" model with a "local linear" trend component has the second
-highest composite score. The other four models performed well as seen by their good performance
-across the error metrics, However, the multiplicative models were ranked lower primarily
-due to their higher model complexity (AIC and BIC scores).
+*Best Performing Models:* The model with an "additive" model type and a "local
+linear" trend component scored the highest. This model achieved the best balance 
+between complexity and fit with the lowest MAE, MAPE, and RMSE, suggesting high 
+accuracy and efficiency in forecasts. In addition, the "additive" model with a "semi-local 
+linear" trend component has the second highest composite score.
 
-Both the "additive" and "multiplicative" models without a trend component showed
-the highest error metrics and the worst information criteria scores. This implied 
-that there was significant under fitting, and also highlights their inability in 
-capturing the underlying patterns in the unemployment data.
+*Subsequent Rankings:* The four models performed well as seen by their good performance
+across the error metrics, However, the multiplicative models were ranked lower primarily
+due to their higher model complexity (as reflected in their AIC and BIC scores).
+
+*Models with No Trend:* Both the "additive" and "multiplicative" models without a
+trend component showed the highest error metrics and the worst information criteria
+scores. This implied that there was significant under fitting, and also highlights 
+their inability in capturing the underlying patterns in the unemployment data.
 \
 
 **Selected Models for Further Analysis**
 
-*Additive Model with Local Linear Trend:* This model offers the best balance
+1. *Additive Model with Local Linear Trend* - This model offers the best balance
 between complexity and accuracy, making it the primary candidate for further validation
 using Bayesian posterior predictive checks.
-
-*Additive Model with Semi-Local Linear Trend*: This model also provides reasonable 
-balance between complexity and accuracy, while providing a valuable point of comparison
+2. *Additive Model with Semi-Local Linear Trend* - This model also provides reasonable 
+balance between complexity and accuracy. It provides a valuable point of comparison
 to our initial model choice.
 
 
@@ -272,6 +216,13 @@ we will conduct a cross-validation study to obtain a more rigerous statistical e
 of the models' predictive performance (see Appendix F). The cross-validation metrics 
 includes the Mean Absolute Error (MAE), Mean Absolute Percentage Error (MAPE), Root
 Mean Square Error (RMSE), and the Average Credible Intervals Width (Avg. CI Width). 
+
+The MAE measures the average magnitude of the errors in a set of predictions, without
+considering their direction. The MAPE expresses the accuracy as a percentage, allowing
+for a more intuitive understanding of the prediction accuracy. The RMSE provides a
+measure of the square root of the average of squared differences between prediction 
+and actual observation. Lastly, the Avg. CI Width indicates the average width of the
+credible intervals, reflecting the average precision of the predictions.
 \
 
 **Posterior Prediction Distribution and Credible Intervals Visual Analysis Results**
@@ -309,43 +260,53 @@ attribute for making informed decisions in uncertain environments.
 
 **Quantifying Uncertainty**
 
-In order to quantify the uncertainty of our forecasts, we achieved this by analyzing
+In order to quantify the uncertainty of our forcasts, we achieved this by analysing
 a variety of error metrics and the calculation of credible intervals. They served
 as important pieces of evidence in both the initial model selection, and the model
-validation and comparison phase. By carefully considering both the expected error 
-metrics and the credible range of the forecasts, we are able to provide a holistic 
-view of the forecast uncertainty, allowing for more informed decision-making processes, 
-while taking into account both the precision and the potential variability of future estimates.
+validation and comparion phase.
+
+1. *Mean Absolute Error (MAE)* - This provided the average magnitude of errors in model
+forecasts, providing a straightforward interpretation of the model's prediction
+accuracy. 
+2. *Mean Absolute Percentage Error (MAPE)* - This provided the MAE as a percentage,
+normalizing the scale of the MAE, and giving a relative measure of the error in terms
+of the size of the actual numbers it's comparing against.
+3. *Root Mean Square Error (RMSE)* - This penalizes large errors more severely, 
+reflecting the variability in prediction errors and serving as an gauge of the uncertainty
+in any forecasts.
+4. *Credible Intervals* - This provided a probabilistic view of where future observations
+are likely to fall, based on the model and the data, with narrower intervals suggest
+greater precision in forecasts.
+
+By carefully considering both the expected error and the credible range of the forecasts,
+we are able to provide a holistic view of the forecast uncertainty, allowing for more
+informed decision-making processes, while taking into account both the precision and
+the potential variability of future estimates.
 
 
 
 ## BSTS Model for US Unemployment Rates
 
-We will now create a mathematical representation of the additive semi-local linear 
+We will now create a mathematical representation of an additive semi-local linear 
 trend model using the Bayesian framework.
 
 *Observation Model:*
 The observed unemployment rate at time $t$, $y_t$, is modeled as:
-$$y_t \sim \text{Normal}(\mu_t + s_t + X_t, \sigma^2_y)$$
+$$y_t \sim \text{Normal}(m_t + s_t + X_t, \sigma^2_y)$$
 
-where $\mu_t$ represents the trend component, $s_t$ denotes the seasonal component, 
+where $m_t$ represents the trend component, $s_t$ denotes the seasonal component, 
 $X_t$ denotes the autoregressive process, and $\sigma^2_y$ is the observation variance.
 
 *Semi-Local Level (Trend) Component:*
 
-The semi-local component $\mu_t$ and its slope $\delta_t$ evolves over time as:
-$$\mu_t \sim \text{Normal}(\mu_{t-1} + \delta_t, \sigma^2_{\mu}), \ \ \ \ \ \ \ \ \ \ \text{where} \  \sigma^2_{\mu} \sim \text{Inverse-Gamma}(2, 1)$$
-$$\delta_t \sim \text{Normal}(D + \rho(\delta_{t-1} - D), \sigma^2_{\delta}), \ \ \ \ \ \ \ \ \ \ \text{where} \ D = 0.0013537, \ \rho \sim \text{Uniform}(0, 1), \ \text{and} \ \sigma^2_{\delta} \sim \text{Inverse-Gamma}(2, 1)$$
+The trend component $m_t$ evolves over time as:
 
-where $\sigma^2_{\mu}$ is the variance of the semi-local component, $D$ is the 
-long-term slope (as calculated in Appendix C - Section 5), $\rho$ is the autoregressive
-behavior of the trend, $\delta_{t-1}$ is the trend slope at the previous time point,
-and $\sigma^2_{\delta}$ is the variance of the trend slope.
+TODO
 
 *Seasonal Component:*
 
 The seasonal component $s_t$ evolves over time as:
-$$s_t \sim \text{Normal}\left(-\frac{1}{S-1}\sum_{i=1}^{S-1} s_{t-i}, \sigma^2_{s}\right), \ \ \ \ \ \ \ \ \ \ \text{where} \ s_1, s_2, ..., s_{12} \sim \text{Normal}(0, \sigma^2_s), \ \text{and} \ \sigma^2_{\mu} \sim \text{Inverse-Gamma}(2, 1)$$
+$$s_t \sim \text{Normal}\left(-\frac{1}{S-1}\sum_{i=1}^{S-1} s_{t-i}, \sigma^2_{s}\right), \ \ \ \ \ \ \ \ \ \ \text{where} \ s_1, s_2, ..., s_{12} \sim \text{Normal}(0, \sigma^2_s)$$
 
 where $S$ is the seasonal period (in this case $S = 12$) for monthly, $s_{t-i}$ is
 the seasonal component as the previous time point, $\sigma^2_s$ is the variance of
@@ -356,41 +317,19 @@ to ensure that the seasonal effects average out to zero over one full cycle.
 *Autoregressive Component:*
 
 The autoregressive process $X_t$ evolves over time as:
-$$X_t = \sum^p_{i=1} \phi_i \cdot X_{t-i} + \epsilon_t, \ \ \ \ \ \ \ \ \ \ \text{where} \ \epsilon_t \sim \text{Normal}(0, \sigma^2_X), \ \text{and} \ \sigma^2_X \sim \text{Inverse-Gamma}(2, 1)$$
 
-where $\phi_i$ are the coefficients for the lags $i = 1, 2, ..., p$ and $\epsilon_t$
-denotes the white noise of the AR(p) term. The order $p$ of the autoregressive process
-is not pre-specified but is determined by the `AutoAr()` function, allowing the data 
-itself to identify the most appropriate lags
+TODO
 \
 
-**Justification of Hyperparameters and Hyperpriors**
+**Hyperparameters and Hyperpriors**
 
-This model uses weakly informative priors and data-driven specifications to robustly
-forecast US Unemployment rates, while providing a quantification of its forecast 
-uncertainty. The model components are tailored to evolve based on historical data 
-patterns, ensuring that predictions are both stable and sensitive to underlying 
-trends. Furthermore, by adopting a flexible approach to the autoregressive order
-and the slope's persistence, the model remains adaptable to various economic scenarios. 
+*Observation Noise Variance:* TODO
 
+*Trend Variance:* TODO
 
+*Seasonal Variance:* TODO
 
-## Discussion
-
-TODO
-
-
-
-\clearpage
-
-
-
-
-
-# References
-
-TODO
-
+*Autoregressive Component:* TODO
 
 
 \clearpage
@@ -1065,4 +1004,21 @@ cat("Inverse-Gamma beta for AR(1) process:", beta_AR_process, "\n")
 
 
 \clearpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
