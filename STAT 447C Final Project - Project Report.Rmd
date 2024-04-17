@@ -92,16 +92,33 @@ metrics and posterior predictive checks.
 
 ## Literature Review
 
-- Summarize key findings from existing literature on Bayesian forecasting and unemployment
-rate analysis.
-- Highlight gaps your project aims to fill or how it builds upon previous work.
-- Discussion of uncertainty quantification in economic forecasting.
-- Calibration of probabilistic forecasts in existing literature.
+Bayesian forecasting techniques have increasingly been recognized for their efficacy 
+in economic predictions. In his 2013 paper, "Bayesian Model Averaging and exchange
+rate forecasts", Jonathan H. Wright explored how Bayesian Model Averaging (BMA) could
+be used to effectively manage a model's uncertainty, a crucial factor for for improving
+forecast accuracy across various economic indicators. Wright's research demonstrated
+that forecast models could maximize prediction reliability and minimize potential biases
+caused by model selection by using BMA to evaluate multiple economic models according 
+to their historical accuracy (Wright).
 
-[To be added]
+In addition, Abdullah M. Almarashi and Khushnoor Khan, in their 2020 paper "Bayesian 
+Structural Time Series", explored the application of Bayesian Structural Time Series
+(BSTS) models on stock data utilizing a combination of a Kalman filter and Monte
+Carlo Markov Chain (MCMC) simulations. Their research demonstrated that BSTS could
+be efficiently used in diverse fields, including complex engineering processes, by
+incorporating external regression information and probabilistic elements into a 
+forecasting model (Almarashi and Khan).
 
-
-\clearpage
+Wright, Almarashi, and Khan's work demonstrated that that BSTS models not only provides
+a viable alternative to classical forecasting models but also enhances the predictive
+capabilities through the integration of advanced statistical techniques However, both 
+of these research focused primarily on general economic forecasting rather than on 
+unemployment rates specifically. This project aims to fill this niche, specifically 
+focusing on adapting Bayesian forecasting to closely analyse and predict the nuanced 
+patterns in US Unemployment rates. Furthermore, there is a clear need for any model 
+to effectively quantify and communicate forecast uncertainty. By providing a quantification
+of forecast uncertainty, this project aims to ensure that the probabilistic forecasts
+are both reliable and comprehensible for economic stakeholders.
 
 
 
@@ -270,8 +287,7 @@ Appendix E). Visualizing the distributions serves to provide insights into the m
 ability to capture the structure of the data and predict future values. Following this,
 we will conduct a cross-validation study to obtain a more rigerous statistical evaluation
 of the models' predictive performance (see Appendix F). The cross-validation metrics 
-includes the Mean Absolute Error (MAE), Mean Absolute Percentage Error (MAPE), Root
-Mean Square Error (RMSE), and the Average Credible Intervals Width (Avg. CI Width). 
+includes the MAE, MAPE, RMSE, and the Average Credible Intervals Width (Avg. CI Width). 
 \
 
 **Posterior Prediction Distribution and Credible Intervals Visual Analysis Results**
@@ -326,7 +342,7 @@ trend model using the Bayesian framework.
 
 *Observation Model:*
 The observed unemployment rate at time $t$, $y_t$, is modeled as:
-$$y_t \sim \text{Normal}(\mu_t + s_t + X_t, \sigma^2_y)$$
+$$y_t \sim \text{Normal}(\mu_t + s_t + X_t, \sigma^2_y), \ \ \ \ \ \ \ \ \ \ \text{where} \  \sigma^2_{y} \sim \text{Inverse-Gamma}(2, 1)$$
 
 where $\mu_t$ represents the trend component, $s_t$ denotes the seasonal component, 
 $X_t$ denotes the autoregressive process, and $\sigma^2_y$ is the observation variance.
@@ -338,9 +354,9 @@ $$\mu_t \sim \text{Normal}(\mu_{t-1} + \delta_t, \sigma^2_{\mu}), \ \ \ \ \ \ \ 
 $$\delta_t \sim \text{Normal}(D + \rho(\delta_{t-1} - D), \sigma^2_{\delta}), \ \ \ \ \ \ \ \ \ \ \text{where} \ D = 0.0013537, \ \rho \sim \text{Uniform}(0, 1), \ \text{and} \ \sigma^2_{\delta} \sim \text{Inverse-Gamma}(2, 1)$$
 
 where $\sigma^2_{\mu}$ is the variance of the semi-local component, $D$ is the 
-long-term slope (as calculated in Appendix C - Section 5), $\rho$ is the autoregressive
-behavior of the trend, $\delta_{t-1}$ is the trend slope at the previous time point,
-and $\sigma^2_{\delta}$ is the variance of the trend slope.
+long-term slope (see Appendix C - Section 5), $\rho$ is the autoregressive behavior
+of the trend, $\delta_{t-1}$ is the trend slope at the previous time point, and 
+$\sigma^2_{\delta}$ is the variance of the trend slope.
 
 *Seasonal Component:*
 
@@ -389,12 +405,30 @@ TODO
 
 # References
 
-TODO
+
+Almarashi, Abdullah M., and Khushnoor Khan. “Bayesian structural time series.” Nanoscience and Nanotechnology Letters, vol. 12, no. 1, 1 Jan. 2020, pp. 54–61, doi.org/10.1166/nnl.2020.3083. 
+
+Brodersen, Kay. Fitting Bayesian Structural Time Series with the Bsts R Package,  Blogger, 12 July 2017,  
+unofficialgoogledatascience.com/2017/07/fitting-bayesian-structural-time-series.html
+
+“Bayesian Structural Time Series.” *SAP HANA Predictive Analysis Library (PAL)*,  
+help.sap.com/docs/SAP_HANA_PLATFORM/2cfbc5cf2bc14f028cfbe2a2bba60a50/b9972576368640da9831d73a9d749c3b.html.  
+Accessed 8 Apr. 2024.
+
+DeWitt, Michael. “Bayesian Time Series Analysis with Bsts.” Insufficient Statistics, 5 July 2018, michaeldewittjr.com/
+programming/2018-07-05-bayesian-time-series-analysis-with-bsts/. 
+
+Radtke, Tim. “Minimize Regret.” *Minimize Regret - Rediscovering Bayesian Structural Time Series*,  
+minimizeregret.com/post/2020/06/07/rediscovering-bayesian-structural-time-series/.  
+Accessed 9 Apr. 2024.
+
+Wright, Jonathan H. “Bayesian model averaging and exchange rate forecasts.” Journal of Econometrics, vol. 146, no. 2, Oct. 2008, pp. 329–341, doi.org/10.1016/j.jeconom.2008.08.012. 
+
+Yabe, Taka. “Pystan - Causal Inference Using Bayesian Structural Time Series.” *Takahiro Yabe*, 21 Feb. 2021, takayabe.net/post/pystan-bsts. Accessed 9 Apr. 2024.
 
 
 
 \clearpage
-
 
 
 
@@ -488,23 +522,7 @@ A general BSTS model consists of twos set of equations,
 BSTS models are usually implemented using the `bsts` package in R, but can also be
 implemented using `rstan`. Stan's advanced MCMC algorithms enhance the flexibility 
 and scalability of BSTS models, making it a powerful tool for time series analysis.
-\
 
-**References**
-
-“Bayesian Structural Time Series.” 
-*SAP HANA Predictive Analysis Library (PAL)*, help.sap.com/docs/SAP_HANA_PLATFORM/
-2cfbc5cf2bc14f028cfbe2a2bba60a50/b9972576368640da9831d73a9d749c3b.html. 
-Accessed 8 Apr. 2024. 
-
-Radtke, Tim. “Minimize Regret.” *Minimize Regret - Rediscovering Bayesian Structural 
-Time Series*, 
-minimizeregret.com/
-post/2020/06/07/rediscovering-bayesian-structural-time-series/. 
-Accessed 9 Apr. 2024. 
-
-Yabe, Taka. “Pystan - Causal Inference Using Bayesian Structural Time Series.” 
-*Takahiro Yabe*, 21 Feb. 2021, www.takayabe.net/post/pystan-bsts. Accessed 9 Apr. 2024.
 
 
 \clearpage
