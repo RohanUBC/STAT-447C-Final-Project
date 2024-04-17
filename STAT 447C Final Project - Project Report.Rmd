@@ -391,9 +391,11 @@ and the slope's persistence, the model remains adaptable to various economic sce
 
 
 
-## Discussion
 
-TODO
+
+# Discussion
+
+[To be added]
 
 
 
