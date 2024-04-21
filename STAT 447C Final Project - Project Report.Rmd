@@ -139,7 +139,8 @@ series should be included in the model (for e.g., trend, seasonality, auto-regre
 etc.). All of this will be done on the training set and all code is available in Appendix B.
 
 *NOTE:* We will be using all the data up until 02/2023 as the training set, and the 
-remaining data (from 02/2023 to 02/2024) as the testing set (see Appendix B - Section 1).
+remaining data (from 03/2023 to 02/2024) as the testing set (see Appendix B - Section 1).
+The test set is composed of one year of monthly US unemployment rates.
 \
 
 **Key Definitions:**
@@ -294,9 +295,9 @@ includes the MAE, MAPE, RMSE, and the Average Credible Intervals Width (Avg. CI 
 
 The Additive Semi-Local Linear Model displayed a more faithful following of the actual
 unemployment trend, as indicated by the overlap of the predicted and actual lines 
-in the plot (see Figures 7 and 8 in Appendix E). Its credible intervals were also
-consistently narrower than those of the Additive Local Linear Model, denoting higher
-precision.
+in the plot (see Figures 7 and 8 in Appendix E). Visually, its credible intervals 
+were also consistently narrower than those of the Additive Local Linear Model, denoting
+a higher precision of forecasts.
 \
 
 **Cross Validation Study Results**
@@ -377,17 +378,25 @@ $$X_t = \sum^p_{i=1} \phi_i \cdot X_{t-i} + \epsilon_t, \ \ \ \ \ \ \ \ \ \ \tex
 where $\phi_i$ are the coefficients for the lags $i = 1, 2, ..., p$ and $\epsilon_t$
 denotes the white noise of the AR(p) term. The order $p$ of the autoregressive process
 is not pre-specified but is determined by the `AutoAr()` function, allowing the data 
-itself to identify the most appropriate lags
+itself to identify the most appropriate lags.
 \
 
 **Justification of Hyperparameters and Hyperpriors**
 
 This model uses weakly informative priors and data-driven specifications to robustly
 forecast US Unemployment rates, while providing a quantification of its forecast 
-uncertainty. The model components are tailored to evolve based on historical data 
-patterns, ensuring that predictions are both stable and sensitive to underlying 
-trends. Furthermore, by adopting a flexible approach to the autoregressive order
+uncertainty.  Furthermore, by adopting a flexible approach to the autoregressive order
 and the slope's persistence, the model remains adaptable to various economic scenarios. 
+
+The Inverse-Gamma distribution is utilized as a hyperprior for the variance components 
+in the model because it is the conjugate prior for the variance of a normal distribution, 
+which simplifies the Bayesian updating process. Furthermore, this choice helps in
+ensuring that the variance estimates remain positive, allowing for flexibility in 
+modeling the inherent variability in the data. Using weakly informative priors in 
+this context allows the historical data to predominantly influence the posterior
+distributions, thereby maximizing the use of historical trends and variability in
+the data, while still providing reasonable constraints to ensure that the model is
+stable and to prevent overfitting.
 
 
 
@@ -395,7 +404,49 @@ and the slope's persistence, the model remains adaptable to various economic sce
 
 # Discussion
 
-[To be added]
+By applying Bayesian forecasting techniques, through the implementation and evaluation
+of BSTS models, has led to several insightful findings. The *Additive Semi-Local Linear Trend Model*
+emerged as the superior model after an extensive cross-validation study and comparison
+against other variants. This model demonstrated the lowest mean absolute error (MAE), 
+mean absolute percentage error (MAPE), and root mean square error (RMSE), indicating 
+a higher accuracy in forecasting unemployment rates. Additionally, it featured narrower
+credible intervals in its predictions, reflecting a greater precision and reduced
+uncertainty in its forecast outputs.
+
+A limitation of the this study is the reliance on historical data to set weakly
+informative priors. While beneficial in incorporate past trends, it may limit the model's
+ability to adapt to new economic conditions not seen in the historical data. Secondly,
+the model's performance is heavily reliant on the cyclic seasonality of past trend, 
+which may not fully capture sudden economic shifts due to unprecedented events or 
+policy changes. Furthermore, the choice to implement Bayesian model, while offering
+robust probabilistic insights, could also lead to increased model complexity and 
+computational requirements that could be avoided with a more direct forecasting approach.
+
+An key limitation to note is the significant lags that were identified in
+the ACF plots of the time series of the data, as in the context of time series analysis
+it indicated than an Auto-Regressive Integrated Moving Average (ARIMA) model could
+have been a better fit for the data. ARIMA models are specifically designed to handle
+data with clear autocorrelation patterns (as is the case here), potentially offering
+more precise forecasts than a BSTS model. This emphasizes the need for exploring 
+a broader range of models in future research to fully leverage the information contained
+in the data's autocorrelative structure.
+
+There are several avenues for future research to consider, that may potentially enhance
+the findings form this study. For example, integrating other labor market metrics 
+such as labor force participation rates, historical inflation rates, etc., could 
+provide a more comprehensive view of the economic landscape influencing US unemployment 
+rates. Additionally, testing the model against alternative economic scenarios, such
+as those involving significant policy shifts or global economic crises, could further
+validate its robustness and adaptability. By broadening the scope of the historical 
+indicators used in the model, future research could improve the robustness and accuracy 
+of forecasting unemployment rates, making them more reflective of the dynamic nature
+of economic fluctuations.
+
+In conclusion, the *Additive Semi-Local Linear Trend Model* emerges as a reliable 
+tool for predicting US unemployment rates, offering precise forecasts along with 
+quantified uncertainties. While acknowledging its limitations, the model's capability
+in managing complex historical trends makes it a valuable asset for economic analysts
+and policy-makers who need reliable predictions to make informed decisions. 
 
 
 
