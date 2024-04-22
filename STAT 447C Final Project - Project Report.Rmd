@@ -1,7 +1,7 @@
 ---
 title: "Bayesian Time Series Analysis of US Unemployment Rates"
-author: "STAT 447C Final Project - Project Report | Rohan Joseph (67089839)"
-# date: "Due Date: 19th April 2024"
+author: "STAT 447C Final Project - Project Report | Due Date: 21st April 2024"
+date: "Rohan Joseph (67089839)"
 # output: pdf_document
 output:
   pdf_document:
@@ -97,7 +97,7 @@ rate forecasts", Jonathan H. Wright explored how Bayesian Model Averaging (BMA) 
 be used to effectively manage a model's uncertainty, a crucial factor in improving
 forecast accuracy across various economic indicators. Wright's research demonstrated
 that forecast models could maximize prediction reliability and minimize potential biases
-caused by model selection by using BMA to evaluate multiple economic models according 
+caused by model selection by using BMA to evaluate multiple models according 
 to their historical accuracy (Wright).
 
 In addition, Abdullah M. Almarashi and Khushnoor Khan, in their 2020 paper "Bayesian 
