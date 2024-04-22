@@ -49,44 +49,43 @@ set.seed(123)
 
 # Introduction
 
-The forecasting of US unemployment rates presents a complex and significant challenge 
-for US policy makers. Accurate predictions of these rates enables the US
-government and businesses to make informed economic decisions, adapt to economic shifts,
-and implement strategies to foster stability and growth in the US economy. Furthermore,
-the unpredictability of labor markets, influenced by factors ranging from global 
-economic conditions to domestic policy changes, necessitates the use of sophisticated
-methods not only provide a framework for forecasting but also allow for the quantification
-of uncertainty in those forecasts. Understanding and predicting unemployment rates 
-is thus not only central to economic analysis but also to the well-being of the US
-economy.
+The forecasting of United States (US) unemployment rates presents a complex and 
+significant challenge for US policy makers. Accurate predictions of these rates enables
+the US government and businesses to make informed economic decisions, adapt to economic 
+shifts, and implement strategies to foster stability and growth in the US economy. 
+Furthermore, the unpredictability of labor markets, influenced by factors ranging 
+from global economic conditions to domestic policy changes, necessitates the use of 
+sophisticated methods not only provide a framework for forecasting, but also allow 
+for the quantification of uncertainty in those forecasts. Understanding and predicting
+unemployment rates is not only central to economic analysis but also to the well-being 
+of the US economy.
 
-The focus of this project is to model and forecast unemployment rates in 
-the United States (US), utilizing a real-world dataset that has documented the monthly
-unemployment rate (from 01/1948 to 02/2024) in the US. A further aim is to quantify
-the uncertainty of the forecast. This is done to ensure that the forecasts are not 
-only precise, but are also accompanied by reliable uncertainty measures. This approach
-aims to assess potential risks effectively, thereby facilitating more informed and 
-prudent economic decision making. The dataset that is being used is from the US Federal
-Reserve on monthly US unemployment rates.
+The focus of this project is to model and forecast unemployment rates in the US,
+utilizing a real-world dataset that has documented the monthly unemployment rate 
+(from 01/1948 to 02/2024) in the US. A further aim is to quantify the uncertainty
+of the forecast. This is done to ensure that the forecasts are not only precise, 
+but are also accompanied by reliable uncertainty measures. This approach aims to
+assess potential risks effectively, thereby facilitating more informed and prudent
+economic decision making. The dataset that is being used is from the US Federal Reserve 
+on monthly US unemployment rates.
 
 *URL:* https://fred.stlouisfed.org/series/UNRATE
 
-We will adopt a Bayesian time series analysis approach, utilizing a Bayesian Structural
+A Bayesian time series analysis approach was adopted, utilizing a Bayesian Structural
 Time Series (BSTS) model to capture the dynamics of the US labor market based on the
-provided data. This involves uncovering and modeling historical trends and seasonal 
-patterns within the data, providing probabilistic forecasts of future unemployment rates.
-We opt for BSTS due to its flexibility in modeling complex time series data with trend
-and seasonality components. BSTS allows for the estimation of latent states, such 
-as trend and seasonal effects, and provides a framework for forecasting future states
-while quantifying uncertainty. Please see Appendix C on a general overview on the
-BSTS model.
+provided historical data. This involves uncovering and modeling the historical trends 
+and seasonal patterns within the data, in order to provide probabilistic forecasts 
+of future unemployment rates. A BSTS model was used due to its flexibility in modeling
+complex time series data with trend and seasonality components, while providing a 
+framework for forecasting future rates. Please see Appendix C to see a general overview 
+on BSTS models.
 
 This project will face challenges in applying Bayesian time series analysis to economic 
 data, particularly in modeling the seasonal patterns and long-term trends inherent 
 in unemployment rates. The primary challenge lies in identifying the specific type
 of model, as well its specific components. This would require diving into the inherent
-structure of the data, while also validating the model's performance through error
-metrics and posterior predictive checks. 
+structure of the data, while also validating the model's performance by analyzing 
+error metrics and posterior predictive checks. 
 
 
 
@@ -95,7 +94,7 @@ metrics and posterior predictive checks.
 Bayesian forecasting techniques have increasingly been recognized for their efficacy 
 in economic predictions. In his 2013 paper, "Bayesian Model Averaging and exchange
 rate forecasts", Jonathan H. Wright explored how Bayesian Model Averaging (BMA) could
-be used to effectively manage a model's uncertainty, a crucial factor for for improving
+be used to effectively manage a model's uncertainty, a crucial factor in improving
 forecast accuracy across various economic indicators. Wright's research demonstrated
 that forecast models could maximize prediction reliability and minimize potential biases
 caused by model selection by using BMA to evaluate multiple economic models according 
@@ -104,18 +103,18 @@ to their historical accuracy (Wright).
 In addition, Abdullah M. Almarashi and Khushnoor Khan, in their 2020 paper "Bayesian 
 Structural Time Series", explored the application of Bayesian Structural Time Series
 (BSTS) models on stock data utilizing a combination of a Kalman filter and Monte
-Carlo Markov Chain (MCMC) simulations. Their research demonstrated that BSTS could
-be efficiently used in diverse fields, including complex engineering processes, by
-incorporating external regression information and probabilistic elements into a 
+Carlo Markov Chain (MCMC) simulations. Their research demonstrated that BSTS models 
+could be efficiently used in diverse fields, including complex engineering processes, 
+by incorporating external regression information and probabilistic elements into a 
 forecasting model (Almarashi and Khan).
 
 Wright, Almarashi, and Khan's work demonstrated that that BSTS models not only provides
 a viable alternative to classical forecasting models but also enhances the predictive
-capabilities through the integration of advanced statistical techniques However, both 
+capabilities through the integration of advanced statistical techniques. However, both 
 of these research focused primarily on general economic forecasting rather than on 
 unemployment rates specifically. This project aims to fill this niche, specifically 
 focusing on adapting Bayesian forecasting to closely analyse and predict the nuanced 
-patterns in US Unemployment rates. Furthermore, there is a clear need for any model 
+patterns in US unemployment rates. Furthermore, there is a clear need for any model 
 to effectively quantify and communicate forecast uncertainty. By providing a quantification
 of forecast uncertainty, this project aims to ensure that the probabilistic forecasts
 are both reliable and comprehensible for economic stakeholders.
@@ -130,15 +129,16 @@ are both reliable and comprehensible for economic stakeholders.
 ## Framework of Model
 
 
-As established in Appendix B, the general BSTS model consists of two sets of equations:
+As established in Appendix B, a general BSTS model consists of two sets of equations:
 the observational (response variable) and the state-space equations (how the parameters
-change over time). In order to do this, we would need to analyse a decomposition of
-the time series, the autocorrelation (ACF) plot, and the partial autocorrelation (PACF)
-plot, of the time series. This would also help us consider want components of a time
-series should be included in the model (for e.g., trend, seasonality, auto-regressive,
-etc.). All of this will be done on the training set and all code is available in Appendix B.
+change over time). In order to set these, first a decomposition of a time series
+of the data would need to be done, including generating an autocorrelation (ACF) 
+plot and a partial autocorrelation (PACF) plot of the time series. This would also 
+help in deciding want components of a time series should be included in the model 
+(for e.g., trend, seasonality, auto-regressive process, etc.). All of this will be 
+done on the training set (see Appendix B).
 
-*NOTE:* We will be using all the data up until 02/2023 as the training set, and the 
+*NOTE:* All the data up until 02/2023 will be used as the training set, and the 
 remaining data (from 03/2023 to 02/2024) as the testing set (see Appendix B - Section 1).
 The test set is composed of one year of monthly US unemployment rates.
 \
@@ -167,8 +167,8 @@ a time series.
 **Summary of the Decomposition of the Time Series**
 
 *Additive Decomposition (Refer to Figure 3 in Appendix C)* - The additive decomposition
-a seasonal component with constant amplitude, aligning with the typical assumptions 
-or an additive model where seasonal effects do not scale with the level of the time 
+revealed a seasonal component with constant amplitude, aligning with the typical assumptions 
+of an additive model where seasonal effects do not scale with the level of the time 
 series. The random (residual) component is fairly homoscedastic, indicating the potential 
 effectiveness of the additive model in encompassing most fluctuations within the time
 series.
@@ -182,42 +182,44 @@ While both decompositions indicates elements of their respective counterparts: t
 additive model shows some periods where amplitude changes slightly, while the multiplicative 
 model demonstrates periods where amplitude remains constant. However, the additive 
 model consistently presents a clearer pattern in unemployment rates across economic 
-cycles with a constant seasonal amplitude. However, considering that the seasonal 
-component is a crucial part of the BSTS model's structure. we plan to test both additive
-and multiplicative models in order to select the best one.
+cycles with a constant seasonal amplitude. Considering that the seasonal component 
+is a crucial part of the BSTS model's structure, and since the decomposition doesn't
+provide any definite insights on whether an additive or multiplicative model is a 
+better fit for the data, the plan is to test both model types.
 
 *Trend Component (Refer to Section 5 in Appendix C* - After decomposing the trend
-component and constructing a general linear regression of the trend, we observe that
-the he intercept and slope values are statistically significant at the 95% confidence
+component and constructing a general linear regression of the trend, it was observed 
+that the intercept and slope values are statistically significant at the 95% confidence
 interval as they both have $p$-values of $< 2 \times 10^{-16}$. However, given the 
 the low $R$-squared value of 0.1133, this may suggest that the trend component may
 not be a reliable indicator for making future predictions. To address this, we will
-testing models with a local-linear trend, semi-local-linear trend, and even no trend.
+testing models with a local-linear trend, semi-local-linear trend, and even no trend,
+in order to select the best trend fit of the model.
 
-*AR(p) Process (Refer to Sections 6 and 7, Figures 5 and 6 in Appendix C)* - Given a
-After looking at the ACF and PACF plots for the training data, we can see that there
+*AR(p) Process (Refer to Sections 6 and 7, Figures 5 and 6 in Appendix C)* - After 
+looking at the ACF and PACF plots for the training data, it was observed that there 
 is significant autocorrelation at multiple lags, so much so that it would not make
 sense to simply isolate a few. However, the `bsts` library allows the data to set the
 lag values through its `AutoAr()` function, which can be added to the state-space 
-for any models being constructed. By doing this, we are acknowledging the broader
-range of autocorrelation patterns revealed by the ACF plot. Hence, all models will
-have an auto AR process.
+for any models being constructed. Doing this, acknowledges the broader range of 
+autocorrelation patterns revealed by the ACF plot. Hence, all models will have an 
+auto AR process.
 \
 
 **Model Selection Strategy**
 
-Based on the decomposition of the time series, we will be testing 6 unique combinations
-of model type (additive/multiplicative) and the presence of a trend component 
-(none/semi-local linear/local linear), before selecting the best 2 out 6 to then further
-evaluate using posterior predictive checks. We will employ a hybrid model selection
-strategy that combines frequentest and Bayesian validation methods, ensuring a robust
+Based on the decomposition of the time series, 6 unique combinations of model type
+(additive/multiplicative) and the presence of a trend component (none/semi-local 
+linear/local linear) would be tested, before selecting the best 2 out 6 to further
+evaluate using posterior predictive checks. A hybrid model selection strategy that 
+combines frequentest and Bayesian validation methods will be used, ensuring a robust
 framework for forecasting unemployment rates, as well as a comprehensive measures of
-the uncertainty in any forecasts. We will be adding both a seasonal and auto-regressive
-components to all models.
+the uncertainty in any forecasts. Both a seasonal and auto-regressive components 
+will be added to all models.
 
-*Models being Tested:* "Additive with no trend", "Additive with semi-local linear
-trend", "Additive with local linear trend", "Multiplicative with no trend", "Multiplicative
-with semi-local linear trend", "Multiplicative with local linear trend".
+*Models being Tested:* "additive with no trend", "additive with semi-local linear
+trend", "additive with local linear trend", "multiplicative with no trend", "multiplicative
+with semi-local linear trend", "multiplicative with local linear trend".
 
 
 
@@ -253,19 +255,17 @@ Please see Appendix D - Section 2 to see how the model's and their associated st
 were built and compiled, and Appendix D - Section 3 to see the code used for the 
 decision matrix and the table of composite scores.
 
-
-The model with an "additive" model type and a "semi-local linear" trend component 
-scored the highest. This model achieved the best balance between complexity and fit
-with the lowest MAE, MAPE, and RMSE, suggesting high accuracy and efficiency in forecasts. 
-In addition, the "additive" model with a "local linear" trend component has the second
-highest composite score. The other four models performed well as seen by their good performance
-across the error metrics, However, the multiplicative models were ranked lower primarily
-due to their higher model complexity (AIC and BIC scores).
-
-Both the "additive" and "multiplicative" models without a trend component showed
-the highest error metrics and the worst information criteria scores. This implied 
-that there was significant under fitting, and also highlights their inability in 
-capturing the underlying patterns in the unemployment data.
+The model with an additive model type and a local linear trend component scored 
+the highest. This model achieved the best balance between complexity and fit with 
+the lowest MAE, MAPE, and RMSE, suggesting a high accuracy and efficiency in forecasts. 
+In addition, the additive model with a semi-local linear trend component had
+the second highest composite score, and was very close across all the metrics with
+the local-linear trend model. The other four models performed well as seen by their 
+good performance across the error metrics, However, the multiplicative models were 
+ranked lower primarily due to their higher model complexity (as indicated by their 
+very high AIC and BIC scores). Furthermore, the additive model with no trend was 
+close, in terms of its composite score, with its semi-local linear and local linear 
+trend model counterparts.
 \
 
 **Selected Models for Further Analysis**
@@ -276,69 +276,71 @@ using Bayesian posterior predictive checks.
 
 *Additive Model with Semi-Local Linear Trend*: This model also provides reasonable 
 balance between complexity and accuracy, while providing a valuable point of comparison
-to our initial model choice.
+to our initial model choice. It was also very close across all the metrics with
+the local-linear trend model.
 
 
 
 ## Model Validation and Comparison
 
-In order to analyse and compare the two selected model, we will begin our analysis
-by generating the plots of the posterior predictive distribution for each model (see
-Appendix E). Visualizing the distributions serves to provide insights into the models'
-ability to capture the structure of the data and predict future values. Following this,
-we will conduct a cross-validation study to obtain a more rigerous statistical evaluation
-of the models' predictive performance (see Appendix F). The cross-validation metrics 
-includes the MAE, MAPE, RMSE, and the Average Credible Intervals Width (Avg. CI Width). 
+In order to analyse and compare the two selected models, the analysis would include
+by generating the plots of the posterior predictive distribution for each model. 
+Visualizing the distributions serves to provide insights into the models' ability
+to capture the structure of the data and predict future values. Following this, a
+cross-validation study will be done to conduct a more rigorous statistical evaluation
+of the models' predictive performance. The cross-validation metrics includes the 
+MAE, MAPE, RMSE, and the Average Credible Intervals Width (Avg. CI Width). 
 \
 
 **Posterior Prediction Distribution and Credible Intervals Visual Analysis Results**
 
-The Additive Semi-Local Linear Model displayed a more faithful following of the actual
+The additive semi-local linear model displayed a more faithful following of the actual
 unemployment trend, as indicated by the overlap of the predicted and actual lines 
 in the plot (see Figures 7 and 8 in Appendix E). Visually, its credible intervals 
-were also consistently narrower than those of the Additive Local Linear Model, denoting
+were also consistently narrower than those of the Additive Local Linear Model, indicating
 a higher precision of forecasts.
 \
 
 **Cross Validation Study Results**
 
-The results of the cross-validation study revealed that the Additive Semi-Local Linear
-Model outperformed the Additive Local Linear Model across all the metrics, as seen 
-by its lower MAE, MAPE, and RMSE values, suggesting that its predictions are closer
-to the actual values and generally more accurate. Furthermore, it presented a smaller
-Average Credible Intervals Width, which signifies a higher average precision of the
-model's forecasts. Furthermore, the plots of the posterior predictive distribution 
-supported the results of the study, with the Additive Semi-Local Linear Model showing
-narrower credible intervals and the predicted values tracking the actual data more
-closely than the Additive Local Linear Model.
+The results of the cross-validation study revealed that the additive semi-local linear
+trend model outperformed the additive local linear trend model across all metrics, 
+as seen by its overall lower MAE, MAPE, and RMSE values, suggesting that its predictions
+were closer to the actual values and generally more accurate. Furthermore, it presented 
+a smaller average credible intervals width, signifying a higher average precision 
+of the model's forecasts. The plots of the posterior predictive distribution supported
+the results of the study, with the additive semi-local linear trend model showing 
+a narrower credible interval and the predicted values tracking the actual data more 
+closely than the additive local linear trend model.
 \
 
 **Final Model**
 
 Based on the combined evidence from the posterior predictive distribution analysis
-and the cross-validation study, we select the *Additive Semi-Local Linear Model* 
+and the cross-validation study, the additive semi-local linear trend model is selected
 as the best model for forecasting US Unemployment rates. This model not only offers
-greater accuracy but also provides more precise predictions, which is critical for
-reliable forecasting. Furthermore, the narrower credible intervals suggest that the
-forecasts made by the Semi-Local Linear Model carry less uncertainty, a valuable 
-attribute for making informed decisions in uncertain environments.
+the greatest accuracy but also provides more precise predictions, which is critical 
+for reliable forecasting. Furthermore, the narrower credible intervals suggest that 
+the forecasts made by the additive semi-local linear trend model carried less uncertainty, 
+a valuable attribute for making informed decisions in uncertain environments.
 \
 
 **Quantifying Uncertainty**
 
-In order to quantify the uncertainty of our forecasts, we achieved this by analyzing
-a variety of error metrics and the calculation of credible intervals. They served
-as important pieces of evidence in both the initial model selection, and the model
-validation and comparison phase. By carefully considering both the expected error 
-metrics and the credible range of the forecasts, we are able to provide a holistic 
-view of the forecast uncertainty, allowing for more informed decision-making processes, 
-while taking into account both the precision and the potential variability of future estimates.
+In order to quantify the uncertainty of our forecasts, this was achieved this by 
+analyzing a variety of error metrics and the calculation of credible intervals. They 
+served as important pieces of evidence in both the initial model selection, and the 
+model validation and comparison phase. By carefully considering both the expected error 
+metrics and the credible range of the forecasts, a holistic view of the forecast 
+uncertainty was able to be provided, allowing for more informed decision-making processes, 
+while taking into account both the precision and the potential variability of future 
+estimates.
 
 
 
 ## BSTS Model for US Unemployment Rates
 
-We will now create a mathematical representation of the additive semi-local linear 
+Consider the following mathematical representation of the additive semi-local linear 
 trend model using the Bayesian framework.
 
 *Observation Model:*
@@ -367,8 +369,8 @@ $$s_t \sim \text{Normal}\left(-\frac{1}{S-1}\sum_{i=1}^{S-1} s_{t-i}, \sigma^2_{
 where $S$ is the seasonal period (in this case $S = 12$) for monthly, $s_{t-i}$ is
 the seasonal component as the previous time point, $\sigma^2_s$ is the variance of
 the seasonal component, and $s_1, s_2, ..., s_{12}$ are the initial seasonal
-component values (associated with every month of a year). We have the factor $\frac{1}{S-1}$
-to ensure that the seasonal effects average out to zero over one full cycle.
+component values (associated with every month of a year). The factor $\frac{1}{S-1}$
+is used to ensure that the seasonal effects average out to zero over one full cycle.
 
 *Autoregressive Component:*
 
@@ -392,7 +394,7 @@ The Inverse-Gamma distribution is utilized as a hyperprior for the variance comp
 in the model because it is the conjugate prior for the variance of a normal distribution, 
 which simplifies the Bayesian updating process. Furthermore, this choice helps in
 ensuring that the variance estimates remain positive, allowing for flexibility in 
-modeling the inherent variability in the data. Using weakly informative priors in 
+modeling the inherent variability of the data. Using weakly informative priors in 
 this context allows the historical data to predominantly influence the posterior
 distributions, thereby maximizing the use of historical trends and variability in
 the data, while still providing reasonable constraints to ensure that the model is
@@ -405,22 +407,13 @@ stable and to prevent overfitting.
 # Discussion
 
 By applying Bayesian forecasting techniques, through the implementation and evaluation
-of BSTS models, has led to several insightful findings. The *Additive Semi-Local Linear Trend Model*
-emerged as the superior model after an extensive cross-validation study and comparison
-against other variants. This model demonstrated the lowest mean absolute error (MAE), 
-mean absolute percentage error (MAPE), and root mean square error (RMSE), indicating 
-a higher accuracy in forecasting unemployment rates. Additionally, it featured narrower
-credible intervals in its predictions, reflecting a greater precision and reduced
-uncertainty in its forecast outputs.
-
-A limitation of the this study is the reliance on historical data to set weakly
-informative priors. While beneficial in incorporate past trends, it may limit the model's
-ability to adapt to new economic conditions not seen in the historical data. Secondly,
-the model's performance is heavily reliant on the cyclic seasonality of past trend, 
-which may not fully capture sudden economic shifts due to unprecedented events or 
-policy changes. Furthermore, the choice to implement Bayesian model, while offering
-robust probabilistic insights, could also lead to increased model complexity and 
-computational requirements that could be avoided with a more direct forecasting approach.
+of BSTS models, has led to several insightful findings. The additive semi-local linear 
+trend model emerged as the superior model after an extensive cross-validation study 
+and comparison against other model variants. This model demonstrated the lowest mean 
+absolute error (MAE), mean absolute percentage error (MAPE), and root mean square 
+error (RMSE), indicating a high accuracy in forecasting unemployment rates. Additionally,
+it featured narrower credible intervals in its predictions, reflecting a greater 
+precision and reduced uncertainty in its forecast outputs.
 
 An key limitation to note is the significant lags that were identified in
 the ACF plots of the time series of the data, as in the context of time series analysis
@@ -430,6 +423,16 @@ data with clear autocorrelation patterns (as is the case here), potentially offe
 more precise forecasts than a BSTS model. This emphasizes the need for exploring 
 a broader range of models in future research to fully leverage the information contained
 in the data's autocorrelative structure.
+
+Another limitation of the this study is the reliance on historical data to set weakly
+informative priors. While beneficial in incorporate past trends, it may limit the model's
+ability to adapt to new economic conditions not seen in the historical data. Secondly,
+the model's performance is heavily reliant on the cyclic seasonality of past trend, 
+which may not fully capture sudden economic shifts due to unprecedented events or 
+policy changes. Furthermore, the choice to implement Bayesian model, while offering
+robust probabilistic insights, could also lead to increased model complexity and 
+computational requirements that could be avoided with a more direct forecasting approach
+(like an ARIMA implementation).
 
 There are several avenues for future research to consider, that may potentially enhance
 the findings form this study. For example, integrating other labor market metrics 
@@ -442,11 +445,11 @@ indicators used in the model, future research could improve the robustness and a
 of forecasting unemployment rates, making them more reflective of the dynamic nature
 of economic fluctuations.
 
-In conclusion, the *Additive Semi-Local Linear Trend Model* emerges as a reliable 
-tool for predicting US unemployment rates, offering precise forecasts along with 
-quantified uncertainties. While acknowledging its limitations, the model's capability
-in managing complex historical trends makes it a valuable asset for economic analysts
-and policy-makers who need reliable predictions to make informed decisions. 
+In conclusion, the additive semi-local linear trend model emerged as a reliable tool
+for predicting US unemployment rates, by offering precise forecasts along with a 
+set of quantified uncertainties. While acknowledging its limitations, the model's 
+capability in managing complex historical trends makes it a valuable asset for economic 
+analysts and policy-makers who need reliable predictions to make informed decisions. 
 
 
 
@@ -572,9 +575,11 @@ A general BSTS model consists of twos set of equations,
 1. *Observational equation:* Response variable as a function of predictors and/or latent variables.
 2. *State-space equations:* How the parameters evolve over the time.
 
-BSTS models are usually implemented using the `bsts` package in R, but can also be
+BSTS models are usually implemented using the `bsts` library in R, but can also be
 implemented using `rstan`. Stan's advanced MCMC algorithms enhance the flexibility 
 and scalability of BSTS models, making it a powerful tool for time series analysis.
+However, in this study, the `bsts` library was used as it was less computationally
+intensive than a Stan implementation.
 
 
 
