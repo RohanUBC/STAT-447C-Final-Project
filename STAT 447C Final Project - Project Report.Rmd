@@ -190,11 +190,11 @@ better fit for the data, the plan is to test both model types.
 *Trend Component (Refer to Section 5 in Appendix C* - After decomposing the trend
 component and constructing a general linear regression of the trend, it was observed 
 that the intercept and slope values are statistically significant at the 95% confidence
-interval as they both have $p$-values of $< 2 \times 10^{-16}$. However, given the 
-the low $R$-squared value of 0.1133, this may suggest that the trend component may
-not be a reliable indicator for making future predictions. To address this, we will
-testing models with a local-linear trend, semi-local-linear trend, and even no trend,
-in order to select the best trend fit of the model.
+interval as they both have $p$-values of $< 0.05$ However, given the the low $R$-squared 
+value of 0.1133, this may suggest that the trend component may not be a reliable 
+indicator for making future predictions. To address this, we will testing models
+with a local-linear trend, semi-local-linear trend, and even no trend, in order to
+select the best trend fit of the model.
 
 *AR(p) Process (Refer to Sections 6 and 7, Figures 5 and 6 in Appendix C)* - After 
 looking at the ACF and PACF plots for the training data, it was observed that there 
@@ -677,9 +677,9 @@ summary(lm_trend)
 $$Trend = 5.1160463 + 0.0013537 \times Time$$
 
 The intercept and slope values are statistically significant at the 95% confidence
-interval as they both have $p$-values of $< 2 \times 10^{-16}$. However, given the 
-the low $R$-squared value of 0.04869, this may suggest that the trend component may
-not be a reliable indicator for making future predictions.
+interval as they both have $p$-values of $< 0.05$. However, given the the low $R$-squared 
+value of 0.04869, this may suggest that the trend component may not be a reliable 
+indicator for making future predictions.
 
 
 \clearpage
